@@ -2,8 +2,11 @@
   "name": "nush-marketing-agency-deploy",
   "private": true,
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "build": "npm --prefix nush-agency install && npm --prefix nush-agency run build",
+    "build": "npm --prefix nush-agency install --include=optional && npm --prefix nush-agency run build",
     "start": "npm --prefix nush-agency run preview -- --host 0.0.0.0 --port $PORT"
   }
 }
