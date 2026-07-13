@@ -13,6 +13,7 @@ import AboutSection from './components/AboutSection';
 import FAQSection from './components/FAQSection';
 import LeadForm from './components/LeadForm';
 import Footer from './components/Footer';
+import BrandQuote from './components/BrandQuote';
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
           <AboutSection />
           <FAQSection />
           <LeadForm />
+          <BrandQuote />
         </main>
         <Footer />
       </div>

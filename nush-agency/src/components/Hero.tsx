@@ -1,5 +1,4 @@
 import { motion } from 'motion/react';
-import SystemDiagram from './SystemDiagram';
 
 export default function Hero() {
   return <section className="relative pt-24 pb-20 md:pt-36 md:pb-28 px-6 md:px-10 overflow-hidden border-b border-white/10">
@@ -15,7 +14,7 @@ export default function Hero() {
           <a href="#realizacja" className="ml-4 inline-flex border border-white/20 px-6 py-4 font-black uppercase tracking-tight text-white/80 hover:border-neon hover:text-neon transition-all">Zobacz realizację</a>
         </motion.div>
       </div>
-      <motion.div initial={{ opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .8, delay: .25 }}><SystemDiagram /></motion.div>
+      <div className="hidden lg:block" aria-hidden="true" />
     </div>
     <div className="relative max-w-7xl mx-auto mt-10 grid gap-3 sm:grid-cols-3 text-[10px] font-mono uppercase tracking-widest text-white/55"><span className="border border-white/10 px-4 py-3">Diagnoza oparta na danych</span><span className="border border-white/10 px-4 py-3">Wdrożenie, nie tylko strategia</span><span className="border border-white/10 px-4 py-3">System pozostaje u klienta</span></div>
   </section>;
