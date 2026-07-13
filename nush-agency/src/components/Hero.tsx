@@ -26,7 +26,7 @@ export default function Hero() {
           <span
             className="font-bold text-neon"
             style={{
-              color: 'rgba(0, 255, 0, 0.12)',
+              color: '#050505',
               WebkitTextStroke: '1px rgba(0, 255, 0, 0.72)',
             }}
           >
