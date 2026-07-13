@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./backups:/app/backups
+  worker:
+    build: .
+    command: python scripts/worker.py
+    volumes:
+      - ./data:/app/data
+      - ./backups:/app/backups

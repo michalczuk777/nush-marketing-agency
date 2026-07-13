@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<companies>
+  <company><Nazwa>Firma Demo A</Nazwa><NIP>1111111111</NIP><REGON>111111111</REGON><Website>https://a.example</Website><Wojewodztwo>dolnośląskie</Wojewodztwo><Miejscowosc>Wrocław</Miejscowosc><PKD>47.91.Z</PKD></company>
+  <company><Nazwa>Firma Demo B</Nazwa><NIP>2222222222</NIP><REGON>222222222</REGON><Website>https://b.example</Website><Wojewodztwo>mazowieckie</Wojewodztwo><Miejscowosc>Warszawa</Miejscowosc><PKD>46.90.Z</PKD></company>
+</companies>
