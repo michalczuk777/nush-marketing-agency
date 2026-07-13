@@ -16,7 +16,7 @@ export default function CaseStudy() {
       <div className="grid min-w-0 gap-14 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] lg:items-end">
         <motion.div className="min-w-0" initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
           <div className="mb-5 flex items-center gap-3 font-mono text-xs font-bold uppercase tracking-[.22em] text-neon"><BarChart3 size={16} /><span>[04] NASZA OSTATNIA REALIZACJA</span></div>
-          <h2 className="max-w-xl break-words text-4xl font-black uppercase leading-[.95] md:text-5xl xl:text-6xl">Z katalogu produktów do przewidywalnego źródła wzrostu</h2>
+          <h2 className="max-w-xl text-3xl font-black uppercase leading-[.95] sm:text-4xl md:text-5xl xl:text-6xl">Z katalogu<br />produktów do<br /><span className="whitespace-nowrap">przewidywalnego</span><br />źródła wzrostu</h2>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-white/60">Porządek w architekturze katalogu, techniczne SEO i skalowalna publikacja podstron w okresie trzech miesięcy.</p>
           <button type="button" onClick={() => setExpanded(!expanded)} className="mt-10 inline-flex items-center gap-3 border border-neon px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-neon transition-all hover:-translate-y-1 hover:bg-neon hover:text-black">{expanded ? 'Zwiń realizację' : 'Poznaj pełną realizację'}<ArrowUpRight size={16} /></button>
         </motion.div>
