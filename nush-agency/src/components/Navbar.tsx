@@ -10,6 +10,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-8 text-sm font-bold uppercase tracking-widest text-white/70">
           <a href="#problemy" className="hover:text-neon transition-colors">Problemy</a>
           <a href="#rozwiazania" className="hover:text-neon transition-colors">Rozwiązania</a>
+          <a href="#realizacja" className="hover:text-neon transition-colors">Realizacja</a>
           <a href="#proces" className="hover:text-neon transition-colors">Proces</a>
         </div>
         <a 

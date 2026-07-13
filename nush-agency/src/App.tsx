@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Problems from './components/Problems';
 import Solutions from './components/Solutions';
+import CaseStudy from './components/CaseStudy';
 import Process from './components/Process';
 import LeadForm from './components/LeadForm';
 import Footer from './components/Footer';
@@ -19,6 +20,7 @@ export default function App() {
           <Hero />
           <Problems />
           <Solutions />
+          <CaseStudy />
           <Process />
           <LeadForm />
         </main>
