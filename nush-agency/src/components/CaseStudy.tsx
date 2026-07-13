@@ -25,7 +25,7 @@ export default function CaseStudy() {
             <span>[03] NASZA OSTATNIA REALIZACJA</span>
           </div>
           <h2 className="max-w-xl text-4xl font-black uppercase leading-[0.95] tracking-tight md:text-6xl">
-            Od katalogu produktów do rosnącego kanału organicznego.
+            Z katalogu produktów do przewidywalnego źródła wzrostu
           </h2>
           <a
             href="#audyt"

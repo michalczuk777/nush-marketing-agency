@@ -30,7 +30,7 @@ export default function Hero() {
               WebkitTextStroke: '1px rgba(0, 255, 0, 0.72)',
             }}
           >
-            budżet.
+            budżet
           </span>
         </motion.h1>
         
