@@ -1,0 +1,6 @@
+{
+  "name": "Nush Agency",
+  "description": "Technologiczna agencja marketingowa skupiona na twardych danych i automatyzacji.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
