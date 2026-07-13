@@ -44,3 +44,11 @@ section[id] {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.field {
+  @apply w-full rounded-none border border-white/10 bg-white/[.04] px-4 py-4 text-base text-white placeholder:text-white/35 transition-colors focus:border-neon focus:outline-none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
