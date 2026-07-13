@@ -13,6 +13,32 @@ body {
   @apply bg-[#050505] text-white font-sans antialiased selection:bg-neon/30 selection:text-neon scroll-smooth;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+.hero-grid {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  animation: grid-drift 18s linear infinite;
+  will-change: background-position;
+}
+
+@keyframes grid-drift {
+  from { background-position: 0 0; }
+  to { background-position: 160px 160px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero-grid { animation: none; }
+}
+
 .glass {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(10px);

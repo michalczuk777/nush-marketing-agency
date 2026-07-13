@@ -35,8 +35,10 @@ export default function Problems() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
+              whileHover={{ y: -6, borderColor: 'rgba(0, 255, 0, 0.55)' }}
               className="p-6 glass rounded-none"
             >
+              <prob.icon className="text-neon mb-6" size={22} aria-hidden="true" />
               <div className="font-bold text-lg uppercase mb-3 text-white">{prob.title}</div>
               <p className="text-sm text-white/50 leading-relaxed">{prob.desc}</p>
             </motion.div>

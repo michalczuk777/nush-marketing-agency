@@ -35,10 +35,11 @@ export default function Solutions() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
+              whileHover={{ x: 6 }}
               className="flex gap-4 items-start"
             >
               <div className="w-10 h-10 flex-shrink-0 bg-white/10 flex items-center justify-center font-bold font-mono text-sm border border-white/10 text-white">
-                {String.fromCharCode(65 + i)}
+                <sol.icon size={18} aria-hidden="true" />
               </div>
               <div>
                 <div className="font-bold uppercase text-base mb-2 text-white">{sol.title}</div>

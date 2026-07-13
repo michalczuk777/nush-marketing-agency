@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 export default function Hero() {
   return (
     <section className="relative pt-24 pb-20 md:pt-40 md:pb-24 px-6 md:px-10 overflow-hidden border-b border-white/10">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+      <div className="hero-grid absolute inset-0"></div>
       
       <div className="relative max-w-5xl mx-auto flex flex-col justify-center">
         <motion.div 
@@ -45,6 +45,10 @@ export default function Hero() {
           <a 
             href="#audyt"
             className="inline-block border-2 border-neon text-neon px-8 py-4 font-black uppercase tracking-tighter hover:bg-neon hover:text-black transition-all"
+            onClick={(event) => {
+              event.preventDefault();
+              document.querySelector('#audyt')?.scrollIntoView({ behavior: 'smooth' });
+            }}
           >
             Zdobądź techniczny audyt swojej firmy
           </a>
