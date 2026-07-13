@@ -23,7 +23,13 @@ export default function Hero() {
         >
           Przestań <br />
           przepalać <br />
-          <span className="text-transparent" style={{ WebkitTextStroke: '1px #00FF00' }}>
+          <span
+            className="font-bold text-neon"
+            style={{
+              color: 'rgba(0, 255, 0, 0.12)',
+              WebkitTextStroke: '1px rgba(0, 255, 0, 0.72)',
+            }}
+          >
             budżet.
           </span>
         </motion.h1>
