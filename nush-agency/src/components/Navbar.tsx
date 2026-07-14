@@ -1,7 +1,7 @@
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
-const links = [['Problemy', '#problemy'], ['Rozwiązania', '#rozwiazania'], ['Współpraca', '#wspolpraca'], ['Realizacja', '#realizacja'], ['Proces', '#proces'], ['O nas', '#o-nas']];
+const links = [['Problemy', '#problemy'], ['Rozwiązania', '#rozwiazania'], ['Współpraca', '#wspolpraca'], ['Realizacja', '#realizacja'], ['Proces', '#proces'], ['Wiedza', '/blog'], ['Słownik', '/slownik']];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
