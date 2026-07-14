@@ -5,10 +5,11 @@ const links = [['Problemy', '#problemy'], ['Rozwiązania', '#rozwiazania'], ['Ws
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const homeHref = window.location.pathname === '/' ? '#top' : '/';
   return <>
     <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
       <div className="px-6 md:px-8 py-4 flex items-center justify-between gap-6">
-        <a href="#top" aria-label="Przejdź na górę strony" className="font-mono font-black text-3xl tracking-tighter text-white hover:text-neon transition-colors">NUSH<span className="text-neon">.</span></a>
+        <a href={homeHref} aria-label="Przejdź na stronę główną NUSH" className="font-mono font-black text-3xl tracking-tighter text-white hover:text-neon transition-colors">NUSH<span className="text-neon">.</span></a>
         <div className="hidden xl:flex items-center gap-6 text-xs font-bold uppercase tracking-widest text-white/70">{links.map(([label, href]) => <a key={href} href={href} className="hover:text-neon transition-colors">{label}</a>)}</div>
         <a href="#kontakt" className="hidden sm:block bg-[#00ff00] text-black px-5 py-3 text-xs md:text-sm font-black uppercase hover:bg-white hover:-translate-y-0.5 transition-all">BEZPŁATNA DIAGNOZA</a>
         <button type="button" aria-label={open ? 'Zamknij menu' : 'Otwórz menu'} aria-expanded={open} onClick={() => setOpen(!open)} className="xl:hidden text-white hover:text-neon"><span className="sr-only">Menu</span>{open ? <X /> : <Menu />}</button>
