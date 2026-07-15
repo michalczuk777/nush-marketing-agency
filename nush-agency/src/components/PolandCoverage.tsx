@@ -9,9 +9,13 @@ const outlinePath = [...polandOutlineRaw.matchAll(/<path d="([\s\S]*?)"\/>/g)]
   .replace(/\s+/g, ' ')
   .trim();
 
+const legacyMapBounds = { x: 77, y: 61, width: 604, height: 525 };
+const sourceMapBounds = { x: 576, y: 576, width: 853, height: 864 };
+
+// City coordinates were authored for the previous outline. Map them into the uploaded SVG's measured bounds.
 const projectPoint = (x: number, y: number) => ({
-  x: 430 + x * 1.65,
-  y: 350 + y * 1.8,
+  x: sourceMapBounds.x + ((x - legacyMapBounds.x) / legacyMapBounds.width) * sourceMapBounds.width,
+  y: sourceMapBounds.y + ((y - legacyMapBounds.y) / legacyMapBounds.height) * sourceMapBounds.height,
 });
 
 export default function PolandCoverage() {
@@ -42,7 +46,8 @@ export default function PolandCoverage() {
           <div className="relative min-h-[420px] overflow-hidden border border-white/10 bg-[#080a08] p-3 sm:p-6">
             <div className="pointer-events-none absolute inset-0 hero-grid opacity-25" aria-hidden="true" />
             <svg
-              viewBox="0 0 2000 2000"
+              viewBox="520 520 965 965"
+              preserveAspectRatio="xMidYMid meet"
               role="img"
               aria-labelledby="poland-map-title poland-map-description"
               className="relative z-10 h-full min-h-[390px] w-full"
@@ -58,7 +63,7 @@ export default function PolandCoverage() {
                     d={outlinePath}
                     fill="rgba(0,255,0,0.025)"
                     stroke="rgba(255,255,255,0.46)"
-                    strokeWidth="18"
+                    strokeWidth="12"
                     strokeLinejoin="round"
                     strokeLinecap="round"
                     vectorEffect="non-scaling-stroke"
