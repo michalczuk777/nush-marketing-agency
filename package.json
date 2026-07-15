@@ -6,6 +6,9 @@
   "engines": {
     "node": ">=20"
   },
+  "dependencies": {
+    "nodemailer": "^7.0.3"
+  },
   "scripts": {
     "build": "npm --prefix nush-agency install --include=optional && npm --prefix nush-agency run build",
     "start": "node server.js"
