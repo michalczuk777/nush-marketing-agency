@@ -15,6 +15,9 @@ const smtpTransporter = process.env.SMTP_HOST && process.env.SMTP_USER && proces
     port: Number(process.env.SMTP_PORT || 587),
     secure: process.env.SMTP_SECURE === 'true',
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   })
   : null;
 const contactRateLimit = new Map();
@@ -136,12 +139,6 @@ function validateContactPayload(payload) {
   if (hasHeaderBreak || values.name.length < 2 || values.name.length > 120) return { error: 'Podaj poprawne imię i nazwisko.' };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email) || values.email.length > 254) return { error: 'Podaj poprawny adres e-mail.' };
   if (values.site.length > 2048) return { error: 'Adres strony jest zbyt długi.' };
-  try {
-    const siteUrl = new URL(values.site);
-    if (!['http:', 'https:'].includes(siteUrl.protocol)) return { error: 'Podaj poprawny adres strony.' };
-  } catch {
-    return { error: 'Podaj poprawny adres strony.' };
-  }
   if (values.message.length > 5000) return { error: 'Wiadomość jest zbyt długa.' };
   return { values };
 }

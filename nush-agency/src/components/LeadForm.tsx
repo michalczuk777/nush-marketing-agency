@@ -18,12 +18,15 @@ export default function LeadForm() {
 
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(formData.entries())),
+        signal: controller.signal,
       });
       const payload = await response.json().catch(() => ({} as ContactResponse));
 
@@ -34,8 +37,11 @@ export default function LeadForm() {
       form.reset();
       setSent(true);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Nie udało się wysłać formularza.');
+      setError(submitError instanceof DOMException && submitError.name === 'AbortError'
+        ? 'Wysyłka trwała zbyt długo. Spróbuj ponownie za chwilę.'
+        : submitError instanceof Error ? submitError.message : 'Nie udało się wysłać formularza.');
     } finally {
+      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -65,7 +71,7 @@ export default function LeadForm() {
             <form className="flex flex-col gap-4" onSubmit={submit}>
               <input name="name" type="text" placeholder="Imię i nazwisko" required aria-label="Imię i nazwisko" maxLength={120} className="field" />
               <input name="email" type="email" placeholder="E-mail" required aria-label="E-mail" maxLength={254} className="field" />
-              <input name="site" type="url" placeholder="Strona WWW" required aria-label="Strona WWW" maxLength={2048} className="field" />
+              <input name="site" type="text" placeholder="Strona WWW lub nazwa firmy" required aria-label="Strona WWW lub nazwa firmy" maxLength={2048} className="field" />
               <textarea name="message" placeholder="W czym możemy pomóc? (opcjonalnie)" aria-label="Wiadomość" maxLength={5000} rows={4} className="field resize-y" />
               <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
               {error && <p className="text-sm text-red-400" role="alert">{error}</p>}
