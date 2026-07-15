@@ -1,22 +1,34 @@
 import { ArrowUpRight } from 'lucide-react';
-import polandOutlineRaw from '../../../Refined-Geometric-Outline-of-Poland.svg?raw';
 import { cities } from '../data/cities';
 
 const cityHref = (slug: string) => `/agencja-marketingowa/${slug}`;
 
-const outlinePath = [...polandOutlineRaw.matchAll(/<path d="([\s\S]*?)"\/>/g)]
-  .at(-1)?.[1]
-  .replace(/\s+/g, ' ')
-  .trim();
-
+const radarBounds = { x: 80, y: 70, width: 840, height: 760 };
 const legacyMapBounds = { x: 77, y: 61, width: 604, height: 525 };
-const sourceMapBounds = { x: 576, y: 576, width: 853, height: 864 };
 
-// City coordinates were authored for the previous outline. Map them into the uploaded SVG's measured bounds.
 const projectPoint = (x: number, y: number) => ({
-  x: sourceMapBounds.x + ((x - legacyMapBounds.x) / legacyMapBounds.width) * sourceMapBounds.width,
-  y: sourceMapBounds.y + ((y - legacyMapBounds.y) / legacyMapBounds.height) * sourceMapBounds.height,
+  x: radarBounds.x + ((x - legacyMapBounds.x) / legacyMapBounds.width) * radarBounds.width,
+  y: radarBounds.y + ((y - legacyMapBounds.y) / legacyMapBounds.height) * radarBounds.height,
 });
+
+const labelOffsets: Record<string, { x: number; y: number; anchor: 'start' | 'middle' | 'end' }> = {
+  szczecin: { x: 30, y: 5, anchor: 'start' },
+  gdansk: { x: 0, y: -28, anchor: 'middle' },
+  olsztyn: { x: 28, y: 5, anchor: 'start' },
+  bialystok: { x: -28, y: -24, anchor: 'end' },
+  warszawa: { x: 28, y: 5, anchor: 'start' },
+  lodz: { x: 28, y: 5, anchor: 'start' },
+  poznan: { x: -28, y: -24, anchor: 'end' },
+  bydgoszcz: { x: 0, y: -30, anchor: 'middle' },
+  'zielona-gora': { x: 28, y: 5, anchor: 'start' },
+  wroclaw: { x: -28, y: -18, anchor: 'end' },
+  opole: { x: -28, y: 30, anchor: 'end' },
+  katowice: { x: -28, y: 30, anchor: 'end' },
+  krakow: { x: 28, y: 5, anchor: 'start' },
+  kielce: { x: 28, y: 5, anchor: 'start' },
+  lublin: { x: 28, y: 5, anchor: 'start' },
+  rzeszow: { x: 28, y: 5, anchor: 'start' },
+};
 
 export default function PolandCoverage() {
   return (
@@ -46,34 +58,48 @@ export default function PolandCoverage() {
           <div className="relative min-h-[420px] overflow-hidden border border-white/10 bg-[#080a08] p-3 sm:p-6">
             <div className="pointer-events-none absolute inset-0 hero-grid opacity-25" aria-hidden="true" />
             <svg
-              viewBox="520 520 965 965"
+              viewBox="0 0 1000 900"
               preserveAspectRatio="xMidYMid meet"
               role="img"
               aria-labelledby="poland-map-title poland-map-description"
               className="relative z-10 h-full min-h-[390px] w-full"
             >
-              <title id="poland-map-title">Mapa Polski ze stolicami województw obsługiwanymi przez NUSH</title>
+              <title id="poland-map-title">Radar NUSH z szesnastoma miastami obsługiwanymi przez NUSH</title>
               <desc id="poland-map-description">
-                Klikalna mapa Polski prowadząca do stron NUSH dla szesnastu miast — po jednym dla każdego województwa.
+                Klikalny radar prowadzący do stron NUSH dla szesnastu miast — po jednym dla każdego województwa.
               </desc>
 
-              {outlinePath ? (
-                <g transform="translate(0 2000) scale(0.1 -0.1)">
-                  <path
-                    d={outlinePath}
-                    fill="rgba(0,255,0,0.025)"
-                    stroke="rgba(255,255,255,0.46)"
-                    strokeWidth="12"
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                    vectorEffect="non-scaling-stroke"
-                  />
-                </g>
-              ) : null}
+              <defs>
+                <linearGradient id="radar-sweep-gradient" gradientUnits="userSpaceOnUse" x1="500" y1="450" x2="800" y2="100">
+                  <stop offset="0" stopColor="#00ff00" stopOpacity="0.28" />
+                  <stop offset="1" stopColor="#00ff00" stopOpacity="0" />
+                </linearGradient>
+                <clipPath id="radar-clip">
+                  <circle cx="500" cy="450" r="380" />
+                </clipPath>
+              </defs>
 
-              {cities.map((city) => {
+              <g className="radar-frame" aria-hidden="true">
+                <circle cx="500" cy="450" r="380" className="fill-neon/[.015] stroke-neon/30" strokeWidth="2" />
+                <g className="fill-none stroke-neon/15" strokeWidth="1">
+                  <circle cx="500" cy="450" r="95" />
+                  <circle cx="500" cy="450" r="190" />
+                  <circle cx="500" cy="450" r="285" />
+                  <path d="M120 450H880M500 70V830M231 181L769 719M231 719L769 181" />
+                </g>
+                <g clipPath="url(#radar-clip)">
+                  <path d="M500 450L500 70A380 380 0 0 1 768 181Z" fill="url(#radar-sweep-gradient)" className="radar-sweep" />
+                  <line x1="500" y1="450" x2="500" y2="70" className="stroke-neon/80 radar-sweep-line" strokeWidth="2" />
+                </g>
+                <circle cx="500" cy="450" r="5" className="fill-neon radar-core" />
+                <text x="500" y="424" textAnchor="middle" className="fill-neon/55 font-mono text-[13px] uppercase tracking-[.24em]">SCAN ACTIVE</text>
+                <text x="500" y="482" textAnchor="middle" className="fill-white/25 font-mono text-[11px] uppercase tracking-[.18em]">NUSH / SIGNAL GRID</text>
+              </g>
+
+              {cities.map((city, index) => {
                 const point = projectPoint(city.map.x, city.map.y);
-                const label = projectPoint(city.map.labelX, city.map.labelY);
+                const offset = labelOffsets[city.slug] ?? { x: 24, y: 5, anchor: 'start' as const };
+                const label = { x: point.x + offset.x, y: point.y + offset.y, anchor: offset.anchor };
 
                 return (
                   <a key={city.slug} href={cityHref(city.slug)} aria-label={`Agencja marketingowa dla firm z ${city.genitive}`}>
@@ -81,18 +107,17 @@ export default function PolandCoverage() {
                       <circle
                         cx={point.x}
                         cy={point.y}
-                        r="28"
-                        fill="rgba(0,255,0,0.08)"
-                        stroke="rgba(0,255,0,0.26)"
+                        r="22"
+                        className="radar-blip-ring fill-neon/[.06] stroke-neon/45"
                         strokeWidth="2"
-                        className="transition-all duration-200 group-hover:fill-neon/20 group-hover:stroke-neon"
+                        style={{ animationDelay: `${(index % 5) * 0.28}s` }}
                       />
-                      <circle cx={point.x} cy={point.y} r="9" fill="#00FF00" />
+                      <circle cx={point.x} cy={point.y} r="7" className="radar-blip-core fill-neon" />
                       <text
                         x={label.x}
                         y={label.y}
-                        textAnchor={city.map.anchor}
-                        className="fill-white/75 font-mono text-[25px] font-bold uppercase tracking-wide transition-colors group-hover:fill-neon"
+                        textAnchor={label.anchor}
+                        className="fill-white/75 font-mono text-[18px] font-bold uppercase tracking-[.08em] transition-colors group-hover:fill-neon"
                       >
                         {city.name}
                       </text>
