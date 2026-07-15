@@ -28,52 +28,63 @@ export default function PolandCoverage() {
         </div>
 
         <div className="mt-14 grid gap-10 border-t border-white/10 pt-10 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="relative min-h-[420px] overflow-hidden border border-white/10 bg-[#080a08] p-4 sm:p-8">
+          <div className="relative min-h-[420px] overflow-hidden border border-white/10 bg-[#080a08] p-3 sm:p-6">
             <div className="pointer-events-none absolute inset-0 hero-grid opacity-25" aria-hidden="true" />
             <svg
-              viewBox="40 25 560 455"
+              viewBox="45 35 660 570"
               role="img"
               aria-labelledby="poland-map-title poland-map-description"
-              className="relative z-10 h-full min-h-[380px] w-full"
+              className="relative z-10 h-full min-h-[390px] w-full"
             >
-              <title id="poland-map-title">Mapa Polski z miastami obsługiwanymi przez NUSH</title>
+              <title id="poland-map-title">Mapa Polski ze stolicami województw obsługiwanymi przez NUSH</title>
               <desc id="poland-map-description">
-                Klikalna mapa prowadząca do stron NUSH dla szesnastu polskich miast.
+                Klikalna mapa Polski prowadząca do stron NUSH dla szesnastu miast — po jednym dla każdego województwa.
               </desc>
 
               <path
-                d="M105 76 L195 56 L278 40 L360 55 L447 44 L520 80 L568 145 L553 213 L583 278 L551 343 L505 374 L472 438 L397 456 L335 435 L287 456 L235 427 L181 441 L130 393 L86 330 L96 270 L66 210 L90 145 Z"
-                fill="rgba(0,255,0,0.025)"
-                stroke="rgba(255,255,255,0.22)"
+                d="M96 194
+                   L110 151 L165 133 L206 113 L269 98 L315 77
+                   L351 61 L382 64 L402 78 L414 102 L440 111
+                   L475 100 L517 99 L548 92 L580 106 L609 129
+                   L631 164 L652 203 L660 246 L649 286 L663 331
+                   L681 372 L662 410 L641 449 L613 476 L584 491
+                   L565 529 L548 563 L510 573 L471 583 L431 567
+                   L401 551 L369 568 L337 586 L304 566 L269 548
+                   L231 558 L203 539 L175 516 L150 492 L126 459
+                   L107 423 L91 390 L99 356 L107 324 L94 293
+                   L77 262 L84 226 Z"
+                fill="rgba(0,255,0,0.028)"
+                stroke="rgba(255,255,255,0.42)"
                 strokeWidth="2"
+                strokeLinejoin="round"
                 vectorEffect="non-scaling-stroke"
               />
 
               <path
-                d="M121 112 L180 95 M478 92 L526 128 M116 356 L168 405 M474 405 L430 445"
-                stroke="rgba(0,255,0,0.24)"
+                d="M98 193 L133 193 M355 61 L380 72 M652 204 L641 227 M565 529 L548 551 M203 539 L225 546"
+                stroke="rgba(0,255,0,0.3)"
                 strokeWidth="1"
                 strokeDasharray="5 8"
                 vectorEffect="non-scaling-stroke"
               />
 
               {cities.map((city) => (
-                <a key={city.slug} href={cityHref(city.slug)} aria-label={`Agencja marketingowa ${city.name}`}>
+                <a key={city.slug} href={cityHref(city.slug)} aria-label={`Agencja marketingowa dla firm z ${city.genitive}`}>
                   <g className="group">
                     <circle
                       cx={city.map.x}
                       cy={city.map.y}
-                      r="12"
+                      r="13"
                       fill="rgba(0,255,0,0.08)"
-                      stroke="rgba(0,255,0,0.22)"
+                      stroke="rgba(0,255,0,0.26)"
                       className="transition-all duration-200 group-hover:fill-neon/20 group-hover:stroke-neon"
                     />
-                    <circle cx={city.map.x} cy={city.map.y} r="4" fill="#00FF00" />
+                    <circle cx={city.map.x} cy={city.map.y} r="4.5" fill="#00FF00" />
                     <text
                       x={city.map.labelX}
                       y={city.map.labelY}
                       textAnchor={city.map.anchor}
-                      className="fill-white/65 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors group-hover:fill-neon"
+                      className="fill-white/75 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors group-hover:fill-neon"
                     >
                       {city.name}
                     </text>
@@ -82,6 +93,9 @@ export default function PolandCoverage() {
               ))}
             </svg>
 
+            <div className="pointer-events-none absolute left-4 top-4 font-mono text-[10px] uppercase tracking-[0.18em] text-neon/45">
+              NUSH / PL / 16 REGIONS
+            </div>
             <div className="pointer-events-none absolute bottom-4 left-4 font-mono text-[10px] uppercase tracking-[0.18em] text-white/20">
               NUSH / AREA SERVED / PL
             </div>
