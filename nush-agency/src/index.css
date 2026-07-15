@@ -34,42 +34,9 @@ section[id] {
   to { background-position: 160px 160px; }
 }
 
-.radar-sweep {
-  transform-box: view-box;
-  transform-origin: 500px 450px;
-  animation: radar-scan 6s linear infinite;
-}
-
-.radar-sweep-line {
-  transform-box: view-box;
-  transform-origin: 500px 450px;
-  animation: radar-scan 6s linear infinite;
-}
-
-.radar-blip-ring {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: radar-blip 2.8s ease-out infinite;
-}
-
-.radar-blip-core {
-  filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.75));
-}
-
-@keyframes radar-scan {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes radar-blip {
-  0%, 100% { opacity: .25; transform: scale(.75); }
-  24% { opacity: .95; transform: scale(1.15); }
-  62% { opacity: .35; transform: scale(1); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .hero-grid, .radar-sweep, .radar-sweep-line, .radar-blip-ring { animation: none; }
+  .hero-grid { animation: none; }
 }
 
 .glass {
