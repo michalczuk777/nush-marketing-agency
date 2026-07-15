@@ -1,12 +1,20 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {defineConfig} from 'vite';
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vite';
+import { cities } from './src/data/cities';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig(() => {
+  const cityEntries = Object.fromEntries(
+    cities.map((city) => [
+      `city-${city.slug}`,
+      path.resolve(rootDir, 'agencja-marketingowa', city.slug, 'index.html'),
+    ]),
+  );
+
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
@@ -37,6 +45,7 @@ export default defineConfig(() => {
           automation: path.resolve(rootDir, 'blog/automatyzacja-sprzedazy-b2b/index.html'),
           analytics: path.resolve(rootDir, 'blog/analityka-marketingowa-bez-chaosu/index.html'),
           glossary: path.resolve(rootDir, 'slownik/index.html'),
+          ...cityEntries,
         },
       },
     },

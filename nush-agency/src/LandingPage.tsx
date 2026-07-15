@@ -7,6 +7,7 @@ import CaseStudy from './components/CaseStudy';
 import Process from './components/Process';
 import AboutSection from './components/AboutSection';
 import FAQSection from './components/FAQSection';
+import PolandCoverage from './components/PolandCoverage';
 import LeadForm from './components/LeadForm';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
@@ -23,5 +24,5 @@ export default function LandingPage() {
     ].map(([question, answer]) => ({ '@type': 'Question', name: question, acceptedAnswer: { '@type': 'Answer', text: answer } })) },
   ];
 
-  return <div id="top" className="min-h-screen bg-[#050505] font-sans text-white"><Seo title="NUSH | Systemy sprzedaży, e-commerce i automatyzacja" description="NUSH łączy e-commerce, marketing, dane i automatyzację w systemy sprzedaży dla firm handlowych i B2B." path="/" schema={schema} /><div className="flex min-h-screen w-full flex-col"><Navbar /><main className="flex-1 pt-20"><Hero /><Problems /><Solutions /><EngagementModels /><CaseStudy /><Process /><AboutSection /><FAQSection /><LeadForm /><BrandQuote /></main><Footer /></div></div>;
+  return <div id="top" className="min-h-screen bg-[#050505] font-sans text-white"><Seo title="NUSH | Systemy sprzedaży, e-commerce i automatyzacja" description="NUSH łączy e-commerce, marketing, dane i automatyzację w systemy sprzedaży dla firm handlowych i B2B." path="/" schema={schema} /><div className="flex min-h-screen w-full flex-col"><Navbar /><main className="flex-1 pt-20"><Hero /><Problems /><Solutions /><EngagementModels /><CaseStudy /><Process /><AboutSection /><FAQSection /><PolandCoverage /><LeadForm /><BrandQuote /></main><Footer /></div></div>;
 }
