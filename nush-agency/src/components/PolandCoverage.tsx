@@ -1,7 +1,18 @@
 import { ArrowUpRight } from 'lucide-react';
+import polandOutlineRaw from '../../../Refined-Geometric-Outline-of-Poland.svg?raw';
 import { cities } from '../data/cities';
 
 const cityHref = (slug: string) => `/agencja-marketingowa/${slug}`;
+
+const outlinePath = [...polandOutlineRaw.matchAll(/<path d="([\s\S]*?)"\/>/g)]
+  .at(-1)?.[1]
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const projectPoint = (x: number, y: number) => ({
+  x: 430 + x * 1.65,
+  y: 350 + y * 1.8,
+});
 
 export default function PolandCoverage() {
   return (
@@ -31,7 +42,7 @@ export default function PolandCoverage() {
           <div className="relative min-h-[420px] overflow-hidden border border-white/10 bg-[#080a08] p-3 sm:p-6">
             <div className="pointer-events-none absolute inset-0 hero-grid opacity-25" aria-hidden="true" />
             <svg
-              viewBox="45 35 660 570"
+              viewBox="0 0 2000 2000"
               role="img"
               aria-labelledby="poland-map-title poland-map-description"
               className="relative z-10 h-full min-h-[390px] w-full"
@@ -41,56 +52,49 @@ export default function PolandCoverage() {
                 Klikalna mapa Polski prowadząca do stron NUSH dla szesnastu miast — po jednym dla każdego województwa.
               </desc>
 
-              <path
-                d="M96 194
-                   L110 151 L165 133 L206 113 L269 98 L315 77
-                   L351 61 L382 64 L402 78 L414 102 L440 111
-                   L475 100 L517 99 L548 92 L580 106 L609 129
-                   L631 164 L652 203 L660 246 L649 286 L663 331
-                   L681 372 L662 410 L641 449 L613 476 L584 491
-                   L565 529 L548 563 L510 573 L471 583 L431 567
-                   L401 551 L369 568 L337 586 L304 566 L269 548
-                   L231 558 L203 539 L175 516 L150 492 L126 459
-                   L107 423 L91 390 L99 356 L107 324 L94 293
-                   L77 262 L84 226 Z"
-                fill="rgba(0,255,0,0.028)"
-                stroke="rgba(255,255,255,0.42)"
-                strokeWidth="2"
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
+              {outlinePath ? (
+                <g transform="translate(0 2000) scale(0.1 -0.1)">
+                  <path
+                    d={outlinePath}
+                    fill="rgba(0,255,0,0.025)"
+                    stroke="rgba(255,255,255,0.46)"
+                    strokeWidth="18"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                </g>
+              ) : null}
 
-              <path
-                d="M98 193 L133 193 M355 61 L380 72 M652 204 L641 227 M565 529 L548 551 M203 539 L225 546"
-                stroke="rgba(0,255,0,0.3)"
-                strokeWidth="1"
-                strokeDasharray="5 8"
-                vectorEffect="non-scaling-stroke"
-              />
+              {cities.map((city) => {
+                const point = projectPoint(city.map.x, city.map.y);
+                const label = projectPoint(city.map.labelX, city.map.labelY);
 
-              {cities.map((city) => (
-                <a key={city.slug} href={cityHref(city.slug)} aria-label={`Agencja marketingowa dla firm z ${city.genitive}`}>
-                  <g className="group">
-                    <circle
-                      cx={city.map.x}
-                      cy={city.map.y}
-                      r="13"
-                      fill="rgba(0,255,0,0.08)"
-                      stroke="rgba(0,255,0,0.26)"
-                      className="transition-all duration-200 group-hover:fill-neon/20 group-hover:stroke-neon"
-                    />
-                    <circle cx={city.map.x} cy={city.map.y} r="4.5" fill="#00FF00" />
-                    <text
-                      x={city.map.labelX}
-                      y={city.map.labelY}
-                      textAnchor={city.map.anchor}
-                      className="fill-white/75 font-mono text-[11px] font-bold uppercase tracking-wide transition-colors group-hover:fill-neon"
-                    >
-                      {city.name}
-                    </text>
-                  </g>
-                </a>
-              ))}
+                return (
+                  <a key={city.slug} href={cityHref(city.slug)} aria-label={`Agencja marketingowa dla firm z ${city.genitive}`}>
+                    <g className="group">
+                      <circle
+                        cx={point.x}
+                        cy={point.y}
+                        r="28"
+                        fill="rgba(0,255,0,0.08)"
+                        stroke="rgba(0,255,0,0.26)"
+                        strokeWidth="2"
+                        className="transition-all duration-200 group-hover:fill-neon/20 group-hover:stroke-neon"
+                      />
+                      <circle cx={point.x} cy={point.y} r="9" fill="#00FF00" />
+                      <text
+                        x={label.x}
+                        y={label.y}
+                        textAnchor={city.map.anchor}
+                        className="fill-white/75 font-mono text-[25px] font-bold uppercase tracking-wide transition-colors group-hover:fill-neon"
+                      >
+                        {city.name}
+                      </text>
+                    </g>
+                  </a>
+                );
+              })}
             </svg>
 
             <div className="pointer-events-none absolute left-4 top-4 font-mono text-[10px] uppercase tracking-[0.18em] text-neon/45">
