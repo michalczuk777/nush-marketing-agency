@@ -1,47 +1,37 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 
-type ContactResponse = {
-  error?: string;
-  ok?: boolean;
-};
-
 export default function LeadForm() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
     setLoading(true);
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+    const name = String(formData.get('name') || '');
+    const email = String(formData.get('email') || '');
+    const site = String(formData.get('site') || '');
+    const message = String(formData.get('message') || '');
+    const subject = `Zapytanie z nush.pl: ${name}`;
+    const body = [
+      `Imię i nazwisko: ${name}`,
+      `E-mail: ${email}`,
+      `Strona WWW: ${site}`,
+      message ? `\nWiadomość:\n${message}` : '',
+    ].filter(Boolean).join('\n');
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(formData.entries())),
-        signal: controller.signal,
-      });
-      const payload = await response.json().catch(() => ({} as ContactResponse));
-
-      if (!response.ok) {
-        throw new Error(payload.error || 'Nie udało się wysłać formularza.');
-      }
-
+      window.location.href = `mailto:kontakt@nush.pl?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       form.reset();
       setSent(true);
     } catch (submitError) {
-      setError(submitError instanceof DOMException && submitError.name === 'AbortError'
-        ? 'Wysyłka trwała zbyt długo. Spróbuj ponownie za chwilę.'
-        : submitError instanceof Error ? submitError.message : 'Nie udało się wysłać formularza.');
+      setError(submitError instanceof Error ? submitError.message : 'Nie udało się otworzyć programu pocztowego.');
     } finally {
-      window.clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -64,8 +54,8 @@ export default function LeadForm() {
           {sent ? (
             <div className="py-12" role="status">
               <p className="font-mono text-neon">MAMY TO</p>
-              <h3 className="mt-4 text-3xl font-black uppercase">Wiadomość wysłana</h3>
-              <p className="mt-4 text-white/60">Dzięki za kontakt. Odezwiemy się, żeby ustalić następny krok.</p>
+              <h3 className="mt-4 text-3xl font-black uppercase">Poczta gotowa</h3>
+              <p className="mt-4 text-white/60">Otworzyliśmy wiadomość w Twoim programie pocztowym. Wyślij ją, żebyśmy mogli ustalić następny krok.</p>
             </div>
           ) : (
             <form className="flex flex-col gap-4" onSubmit={submit}>
