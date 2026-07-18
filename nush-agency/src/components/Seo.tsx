@@ -1,7 +1,8 @@
 /// <reference types="vite/client" />
 import { useEffect } from 'react';
 
-export const SITE_URL = (import.meta.env.VITE_SITE_URL || 'https://nush.pl').replace(/\/$/, '');
+const viteEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env;
+export const SITE_URL = (viteEnv?.VITE_SITE_URL || 'https://nush.pl').replace(/\/$/, '');
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.svg`;
 
 type SeoProps = {

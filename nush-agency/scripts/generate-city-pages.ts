@@ -55,10 +55,12 @@ const renderHtml = (city: (typeof cities)[number]) => {
 
 const baseUrls = [
   { loc: '/', changefreq: 'weekly', priority: '1.0' },
+  { loc: '/widocznosc-w-ai', changefreq: 'weekly', priority: '0.9' },
   { loc: '/blog', changefreq: 'weekly', priority: '0.8' },
   { loc: '/blog/techniczne-seo-w-e-commerce', changefreq: 'monthly', priority: '0.8' },
   { loc: '/blog/automatyzacja-sprzedazy-b2b', changefreq: 'monthly', priority: '0.8' },
   { loc: '/blog/analityka-marketingowa-bez-chaosu', changefreq: 'monthly', priority: '0.8' },
+  { loc: '/blog/generative-engine-optimization-geo', changefreq: 'monthly', priority: '0.9' },
   { loc: '/slownik', changefreq: 'monthly', priority: '0.7' },
 ];
 

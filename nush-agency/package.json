@@ -9,7 +9,8 @@
   "scripts": {
     "generate:city-pages": "tsx scripts/generate-city-pages.ts",
     "dev": "npm run generate:city-pages && vite --port=3000 --host=0.0.0.0",
-    "build": "npm run generate:city-pages && vite build --configLoader runner",
+    "build": "npm run generate:city-pages && vite build --configLoader runner && npm run prerender",
+    "prerender": "tsx scripts/prerender.tsx",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js agencja-marketingowa",
     "lint": "tsc --noEmit"

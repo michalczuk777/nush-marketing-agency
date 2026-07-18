@@ -3,9 +3,12 @@ import { useState } from 'react';
 
 const links = [['Problemy', '#problemy'], ['Rozwiązania', '#rozwiazania'], ['Współpraca', '#wspolpraca'], ['Realizacja', '#realizacja'], ['Proces', '#proces'], ['Wiedza', '/blog'], ['Słownik', '/slownik']];
 
-export default function Navbar() {
+type NavbarProps = { currentPath?: string };
+
+export default function Navbar({ currentPath: providedPath }: NavbarProps = {}) {
   const [open, setOpen] = useState(false);
-  const isHome = window.location.pathname === '/';
+  const currentPath = providedPath || (typeof window === 'undefined' ? '/' : window.location.pathname);
+  const isHome = currentPath === '/';
   const homeHref = isHome ? '#top' : '/';
   const resolveHref = (href: string) => (!isHome && href.startsWith('#') ? `/${href}` : href);
 

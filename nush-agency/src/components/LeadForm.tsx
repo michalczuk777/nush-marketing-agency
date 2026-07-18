@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import { trackEvent } from '../analytics';
 
 export default function LeadForm() {
   const [sent, setSent] = useState(false);
@@ -10,6 +11,7 @@ export default function LeadForm() {
     event.preventDefault();
     setError('');
     setLoading(true);
+    trackEvent('geo_contact_submit', { location: window.location.pathname });
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -40,7 +42,7 @@ export default function LeadForm() {
     <section id="kontakt" className="border-b border-white/10 bg-black px-6 py-24 md:px-10">
       <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[.9fr_1.1fr]">
         <div>
-          <p className="mb-5 font-mono text-xs font-bold uppercase tracking-widest text-neon">[08] BEZPŁATNA DIAGNOZA</p>
+          <p className="mb-5 font-mono text-xs font-bold uppercase tracking-widest text-neon">[09] BEZPŁATNA DIAGNOZA</p>
           <h2 className="max-w-4xl break-words text-4xl font-black uppercase leading-[1.1] md:text-6xl lg:pr-12">Znajdźmy problem, który kosztuje Cię najwięcej</h2>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-white/60">Krótka rozmowa i konkretny punkt startu. Bez prezentacji sprzedażowej, bez zobowiązań.</p>
           <ul className="mt-8 space-y-3 text-sm text-white/70">

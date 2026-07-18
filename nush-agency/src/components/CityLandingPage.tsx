@@ -10,6 +10,7 @@ import { getCityDescription, getCityHero, getCityTitle, getRelatedCities } from 
 
 type CityLandingPageProps = {
   city: CityPage;
+  currentPath?: string;
 };
 
 const services = [
@@ -31,7 +32,7 @@ const services = [
   },
 ];
 
-export default function CityLandingPage({ city }: CityLandingPageProps) {
+export default function CityLandingPage({ city, currentPath }: CityLandingPageProps) {
   const relatedCities = getRelatedCities(city);
   const path = `/agencja-marketingowa/${city.slug}`;
   const title = getCityTitle(city);
@@ -105,7 +106,7 @@ export default function CityLandingPage({ city }: CityLandingPageProps) {
   return (
     <div id="top" className="min-h-screen overflow-x-hidden bg-[#050505] font-sans text-white">
       <Seo title={title} description={description} path={path} schema={schema} />
-      <Navbar />
+      <Navbar currentPath={currentPath || path} />
 
       <main className="pt-20">
         <section className="relative overflow-hidden border-b border-white/10 px-5 py-16 sm:px-6 sm:py-20 md:px-10 md:py-24 lg:py-28">
