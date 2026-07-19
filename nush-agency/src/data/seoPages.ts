@@ -96,7 +96,7 @@ export const seoPages: SeoPageData[] = [
     slug: 'zarzadzanie-stanami-magazynowymi',
     category: 'AUTOMATYZACJE I API',
     metaDescription: 'Synchronizacja stanów w wielu kanałach (Allegro, Amazon, sklep, hurt). Unikaj braków towarowych.',
-    problemText: 'Sprzedałeś produkt na Allegro, ale zapomniałeś zdjąć stan w sklepie starym i na Amazonie. Kolejny klient kupuje coś, czego już fizycznie nie ma na półce. Tracisz nerwy i musisz przepraszać zdezorientowanych kupujących.',
+    problemText: 'Sprzedałeś produkt na Allegro, ale zapomniałeś zaktualizować stan w swoim sklepie internetowym i na Amazonie. Kolejny klient kupuje coś, czego już fizycznie nie ma na półce. Tracisz nerwy i musisz przepraszać zdezorientowanych kupujących.',
     solutionText: 'Wdrażamy "Single Source of Truth" (Jedno Źródło Prawdy). Niezależnie od tego, w którym z 5 kanałów padnie sprzedaż, nasze skrypty ułamki sekund później aktualizują stany magazynowe w pozostałych kanałach.'
   },
   {
@@ -187,7 +187,7 @@ export const seoPages: SeoPageData[] = [
     category: 'ANALITYKA I SEO',
     metaDescription: 'Wdrożenie trybu zgody Google v2 (Consent Mode) zapewniające legalne śledzenie bez utraty danych AI.',
     problemText: 'Unia Europejska grozi karami, a znikające z rynku "ciasteczka" sprawiły, że Twoje kampanie remarketingowe przestały dowozić konwersje. Boisz się instalacji bannerów, które usuną 50% zebranych danych analitycznych.',
-    solutionText: 'Wdrażamy w pełni legalny standard Google Consent Mode v2. Chronimy prywatność użytkowników bez drastycznego ucinania danych dla systemów maszynowego uczenia Google Ads, wykorzystując tzw. modelowanie konwersji pings.'
+    solutionText: 'Wdrażamy w pełni legalny standard Google Consent Mode v2. Chronimy prywatność użytkowników bez drastycznego ucinania danych dla systemów maszynowego uczenia Google Ads, wykorzystując tzw. modelowanie konwersji (cookieless pings).'
   },
   {
     title: 'Pulpity analityczne w Looker Studio',
