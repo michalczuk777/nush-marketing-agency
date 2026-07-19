@@ -3,7 +3,7 @@ import { ArrowUpRight, Compass, Layers3, UsersRound } from 'lucide-react';
 
 const models = [
   { num: '01', title: 'Diagnoza i roadmapa', icon: Compass, forWho: 'Gdy potrzebujesz jasnego kierunku', scope: 'Analiza danych, procesów i kanałów sprzedaży', result: 'Priorytety oraz plan wdrożenia' },
-  { num: '02', title: 'Sprint wdrożeniowy', icon: Layers3, forWho: 'Gdy znasz problem i chcesz ruszyć', scope: 'Jeden konkretny obszar, zespół i termin', result: 'Działające rozwiązanie, nie prezentacja' },
+  { num: '02', title: 'Sprint wdrożeniowy', icon: Layers3, forWho: 'Gdy znasz problem i chcesz ruszyć', scope: 'Krótki, 14-dniowy sprint inżynieryjny z jasno określonym zakresem. Uderzamy w jedno, konkretne wąskie gardło.', result: 'Działający kod lub proces bez długoterminowych umów.' },
   { num: '03', title: 'Stały zespół wzrostu', icon: UsersRound, forWho: 'Gdy system ma rosnąć razem z firmą', scope: 'Ciągłe testy, optymalizacja i rozwój', result: 'Partner do długofalowego wzrostu' },
 ];
 

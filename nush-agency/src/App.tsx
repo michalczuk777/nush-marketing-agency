@@ -4,6 +4,7 @@
  */
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import TechMarquee from './components/TechMarquee';
 import Problems from './components/Problems';
 import Solutions from './components/Solutions';
 import EngagementModels from './components/EngagementModels';
@@ -22,6 +23,7 @@ export default function App() {
         <Navbar />
         <main className="flex-1 pt-20">
           <Hero />
+          <TechMarquee />
           <Problems />
           <Solutions />
           <EngagementModels />
