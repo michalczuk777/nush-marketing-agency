@@ -19,7 +19,7 @@ export default defineConfig(() => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
     preview: {
-      allowedHosts: ['nush-marketing-agency-production.up.railway.app'],
+      allowedHosts: ['nush-marketing-agency-production.up.railway.app', 'nush.pl'],
     },
   };
 });
