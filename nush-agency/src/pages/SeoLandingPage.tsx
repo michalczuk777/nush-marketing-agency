@@ -31,7 +31,6 @@ export default function SeoLandingPage() {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={metaDesc} />
         <meta property="og:url" content={`https://nush.pl/${slug}`} />
-        <meta property="og:image" content="https://nush.pl/og-image.jpg" />
         <meta property="twitter:card" content="summary_large_image" />
       </Helmet>
       
