@@ -1,3 +1,12 @@
+import { Link } from 'react-router-dom';
+
+const generateSlug = (text: string) => {
+  return text.toLowerCase()
+    .replace(/[ąćęłńóśźż]/g, c => ({ 'ą':'a', 'ć':'c', 'ę':'e', 'ł':'l', 'ń':'n', 'ó':'o', 'ś':'s', 'ź':'z', 'ż':'z' })[c as string] || c)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+};
+
 export default function SEOLinks() {
   const links = [
     "Tworzenie szybkich stron WWW",
@@ -18,13 +27,13 @@ export default function SEOLinks() {
         </h3>
         <div className="flex flex-wrap gap-4">
           {links.map((link) => (
-            <a
+            <Link
               key={link}
-              href="#"
+              to={`/${generateSlug(link)}`}
               className="text-sm text-gray-600 hover:text-white transition-colors"
             >
               {link}
-            </a>
+            </Link>
           ))}
         </div>
       </div>
