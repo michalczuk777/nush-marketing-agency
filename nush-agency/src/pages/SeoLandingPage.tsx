@@ -3,9 +3,9 @@ import { Helmet } from 'react-helmet-async';
 import Navbar from '../components/Navbar';
 import LeadForm from '../components/LeadForm';
 import Footer from '../components/Footer';
+import { seoPages } from '../data/seoPages';
 
-// Helper to capitalize and format slug to human readable title
-const formatSlug = (slug: string) => {
+const formatSlugFallback = (slug: string) => {
   return slug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -14,9 +14,15 @@ const formatSlug = (slug: string) => {
 
 export default function SeoLandingPage() {
   const { slug } = useParams();
-  const title = slug ? formatSlug(slug) : 'E-commerce & B2B Solutions';
-  const pageTitle = `${title} | NUSH`;
-  const metaDesc = `Sprawdź, jak ${title.toLowerCase()} wpływa na wzrost sprzedaży i automatyzację w Twojej firmie. Rozwiązujemy konkretne problemy z technologią i marketingiem B2B.`;
+  
+  // Znajdź stronę w bazie (lub użyj fallbacka, jeśli slug to stary adres)
+  const pageData = slug ? seoPages.find(p => p.slug === slug) : undefined;
+  
+  const title = pageData ? pageData.title : (slug ? formatSlugFallback(slug) : 'Wsparcie Techniczne B2B');
+  const pageTitle = `${title} | NUSH Systemy E-commerce`;
+  const metaDesc = pageData ? pageData.metaDescription : `Sprawdź, jak ${title.toLowerCase()} wpływa na wzrost sprzedaży i automatyzację w Twojej firmie. Technologiczne ramię B2B.`;
+  const problemText = pageData?.problemText || 'Jeśli Twój biznes napotyka wyzwania w tym obszarze, prawdopodobnie tracisz czas na ręczną pracę lub przepalasz budżet na nieskuteczne rozwiązania.';
+  const solutionText = pageData?.solutionText || 'Pochodzimy do problemów czysto inżynieryjnie. Zamiast oferować gotowe paczki usług, audytujemy to konkretne wąskie gardło i wdrażamy dedykowane skrypty, integracje API lub optymalizujemy architekturę obecnego systemu.';
 
   return (
     <div className="w-full flex flex-col min-h-screen bg-[#050505] text-white">
@@ -32,17 +38,25 @@ export default function SeoLandingPage() {
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-neon mb-5">
             [ WIEDZA I ROZWIĄZANIA ]
           </p>
-          <h1 className="text-4xl md:text-6xl font-black uppercase leading-[1.1] mb-8">
+          <h1 className="text-4xl md:text-6xl font-black uppercase leading-[1.1] mb-12">
             {title}
           </h1>
           <div className="prose prose-invert prose-lg max-w-none text-white/70">
-            <p className="text-xl md:text-2xl font-semibold text-white mb-6">
-              Jeśli Twój biznes napotyka wyzwania w tym obszarze, prawdopodobnie tracisz czas na ręczną pracę lub przepalasz budżet na nieskuteczne rozwiązania.
-            </p>
-            <p>
-              W NUSH nie tworzymy teorii. Podchodzimy do problemów czysto inżynieryjnie. Zamiast oferować gotowe paczki usług, audytujemy to konkretne wąskie gardło i wdrażamy dedykowane skrypty, integracje API lub optymalizujemy architekturę obecnego systemu.
-            </p>
-            <p className="mt-4">
+            <div className="mb-10 bg-white/5 border-l-2 border-white/20 p-6 md:p-8">
+              <h2 className="text-sm font-mono text-white/50 mb-4 uppercase tracking-widest">Problem z którym się mierzysz</h2>
+              <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
+                {problemText}
+              </p>
+            </div>
+            
+            <div className="mb-10 p-6 md:p-8">
+              <h2 className="text-sm font-mono text-neon mb-4 uppercase tracking-widest">Inżynieryjne rozwiązanie NUSH</h2>
+              <p className="text-lg md:text-xl leading-relaxed">
+                {solutionText}
+              </p>
+            </div>
+            
+            <p className="text-base text-white/50 border-t border-white/10 pt-8 mt-8">
               Nasze podejście opiera się na twardych danych: mierzymy obecny stan, wdrażamy zmiany w krótkich, zwinnych sprintach i raportujemy konkretny wpływ na konwersję i czas pracy Twojego zespołu.
             </p>
           </div>
