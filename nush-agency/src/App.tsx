@@ -15,6 +15,7 @@ import FAQSection from './components/FAQSection';
 import LeadForm from './components/LeadForm';
 import Footer from './components/Footer';
 import BrandQuote from './components/BrandQuote';
+import SEOLinks from './components/SEOLinks';
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
           <FAQSection />
           <LeadForm />
           <BrandQuote />
+          <SEOLinks />
         </main>
         <Footer />
       </div>
