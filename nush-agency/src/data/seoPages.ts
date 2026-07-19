@@ -22,7 +22,7 @@ export const seoPages: SeoPageData[] = [
     slug: 'optymalizacja-sklepu-e-commerce',
     category: 'E-COMMERCE I STRONY WWW',
     metaDescription: 'Przyspieszamy WooCommerce, Shopify i PrestaShop. Skaluj sprzedaż bez technicznych awarii.',
-    problemText: 'Twój e-commerce "zacina się" w najgorszych momentach – podczas kampanii reklamowych, Black Friday lub gdy masz wysyp klientów. Proces składania zamówienia jest skomplikowany, koszyk działa wolno, a Ty tracisz setki złotych dziennie na porzuconych transakcjach.',
+    problemText: 'Twój e-commerce "zacina się" w najgorszych momentach - podczas kampanii reklamowych, Black Friday lub gdy masz wysyp klientów. Proces składania zamówienia jest skomplikowany, koszyk działa wolno, a Ty tracisz setki złotych dziennie na porzuconych transakcjach.',
     solutionText: 'Wdrażamy inżynieryjną optymalizację koszyka i ścieżki zakupowej. Odbudowujemy zapytania do bazy danych, czyścimy mechanizmy obliczania wysyłek i wdrażamy inteligentny cache. Zamieniamy powolny sklep w maszynę odporną na ogromny ruch.'
   },
   {
@@ -146,7 +146,7 @@ export const seoPages: SeoPageData[] = [
     slug: 'poprawa-widocznosci-w-google',
     category: 'ANALITYKA I SEO',
     metaDescription: 'Dominacja wyników wyszukiwania (SEO). Konwertuj ruch z zapytań o konkretne problemy.',
-    problemText: 'Jesteś na 3 stronie Google na frazy związane z Twoim biznesem. Płacisz agencji za linki, ale nie widać efektów. Klient, który jest gotowy kupić natychmiast – trafia do Twojej konkurencji, po prostu dlatego, że była wyżej.',
+    problemText: 'Jesteś na 3 stronie Google na frazy związane z Twoim biznesem. Płacisz agencji za linki, ale nie widać efektów. Klient, który jest gotowy kupić natychmiast - trafia do Twojej konkurencji, po prostu dlatego, że była wyżej.',
     solutionText: 'Realizujemy model Performance SEO (często zwany Programmatic SEO). Optymalizujemy techniczne fundamenty kodu i wprowadzamy architekturę zorientowaną wokół problemów Twoich klientów. Wyciągamy na światło dzienne ruch z kalorycznego "długiego ogona".'
   },
   {
@@ -178,7 +178,7 @@ export const seoPages: SeoPageData[] = [
     slug: 'naprawa-google-search-console',
     category: 'ANALITYKA I SEO',
     metaDescription: 'Usuwanie błędów "Strona zawiera błędy przekierowań", Core Web Vitals i wykluczeń indeksowania.',
-    problemText: 'Otrzymujesz maile od Google, że "Strony nie zindeksowano", "Wykryto problem z czytelnością na urządzeniach mobilnych", "Błąd struktury Schema.org" – i ignorujesz to, zrzucając winę na wadliwe powiadomienia systemu.',
+    problemText: 'Otrzymujesz maile od Google, że "Strony nie zindeksowano", "Wykryto problem z czytelnością na urządzeniach mobilnych", "Błąd struktury Schema.org" - i ignorujesz to, zrzucając winę na wadliwe powiadomienia systemu.',
     solutionText: 'Oczyszczamy profil witryny. Badamy raporty z Google Search Console i usuwamy techniczne usterki, takie jak wstrzykiwane przez złośliwy kod linki czy błędnie zakodowane menu mobilne. Odzyskujemy autorytet Twojej domeny w oczach silnika wyszukiwarki.'
   },
   {
