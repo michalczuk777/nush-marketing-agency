@@ -3,32 +3,36 @@ import { Helmet } from 'react-helmet-async';
 import Navbar from '../components/Navbar';
 import LeadForm from '../components/LeadForm';
 import Footer from '../components/Footer';
+import NotFound from './NotFound';
 import { seoPages } from '../data/seoPages';
-
-const formatSlugFallback = (slug: string) => {
-  return slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-};
 
 export default function SeoLandingPage() {
   const { slug } = useParams();
   
-  // Znajdź stronę w bazie (lub użyj fallbacka, jeśli slug to stary adres)
+  // Znajdź stronę w bazie
   const pageData = slug ? seoPages.find(p => p.slug === slug) : undefined;
   
-  const title = pageData ? pageData.title : (slug ? formatSlugFallback(slug) : 'Wsparcie Techniczne B2B');
+  if (!pageData) {
+    return <NotFound />;
+  }
+  
+  const title = pageData.title;
   const pageTitle = `${title} | NUSH Systemy E-commerce`;
-  const metaDesc = pageData ? pageData.metaDescription : `Sprawdź, jak ${title.toLowerCase()} wpływa na wzrost sprzedaży i automatyzację w Twojej firmie. Technologiczne ramię B2B.`;
-  const problemText = pageData?.problemText || 'Jeśli Twój biznes napotyka wyzwania w tym obszarze, prawdopodobnie tracisz czas na ręczną pracę lub przepalasz budżet na nieskuteczne rozwiązania.';
-  const solutionText = pageData?.solutionText || 'Pochodzimy do problemów czysto inżynieryjnie. Zamiast oferować gotowe paczki usług, audytujemy to konkretne wąskie gardło i wdrażamy dedykowane skrypty, integracje API lub optymalizujemy architekturę obecnego systemu.';
+  const metaDesc = pageData.metaDescription;
+  const problemText = pageData.problemText;
+  const solutionText = pageData.solutionText;
 
   return (
     <div className="w-full flex flex-col min-h-screen bg-[#050505] text-white">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={metaDesc} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={metaDesc} />
+        <meta property="og:url" content={`https://nush.pl/${slug}`} />
+        <meta property="og:image" content="https://nush.pl/og-image.jpg" />
+        <meta property="twitter:card" content="summary_large_image" />
       </Helmet>
       
       <Navbar />
