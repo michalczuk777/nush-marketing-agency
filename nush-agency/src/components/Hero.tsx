@@ -6,7 +6,7 @@ export default function Hero() {
     <div className="relative max-w-7xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-12 items-center">
       <div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }} className="font-mono text-[11px] md:text-sm mb-6 text-neon font-bold tracking-[0.22em] uppercase">// SYSTEMY SPRZEDAŻY · E-COMMERCE · AUTOMATYZACJA</motion.div>
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .1 }} className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight uppercase mb-8 max-w-5xl break-words">PRZESTAŃ PRZEPALAĆ <span className="font-bold text-neon block mt-2 lg:mt-4">BUDŻET</span></motion.h1>
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .1 }} className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.1] tracking-tight uppercase mb-8 max-w-5xl break-words">PRZESTAŃ PRZEPALAĆ <span className="font-bold text-neon block mt-1 lg:-mt-2">BUDŻET</span></motion.h1>
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .2 }} className="text-lg md:text-2xl text-white/70 max-w-2xl mb-8 leading-relaxed">Jesteśmy technologicznym wsparciem dla Twojego biznesu. Od tworzenia i optymalizacji szybkich stron WWW, przez konfigurację sklepów e-commerce, aż po automatyzację obsługi zamówień. Ty zajmujesz się sprzedażą, my bierzemy na siebie całą technologię.</motion.p>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .3 }}>

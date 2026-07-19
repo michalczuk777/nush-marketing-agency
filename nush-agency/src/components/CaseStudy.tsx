@@ -16,7 +16,7 @@ export default function CaseStudy() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 lg:items-end">
         <motion.div className="min-w-0 max-w-lg lg:max-w-full lg:pr-10" initial={{ opacity: 0, x: -24 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
           <div className="mb-5 flex items-center gap-3 font-mono text-xs font-bold uppercase tracking-[.22em] text-neon"><BarChart3 size={16} /><span>[04] NASZA OSTATNIA REALIZACJA</span></div>
-          <h2 className="max-w-xl text-3xl font-black uppercase leading-[1.1] sm:text-4xl md:text-5xl xl:text-6xl break-words lg:pr-12">Z katalogu<br />produktów do<br />przewidywalnego<br />źródła wzrostu</h2>
+          <h2 className="max-w-2xl text-3xl font-black uppercase leading-[1.1] sm:text-4xl md:text-5xl xl:text-[54px] lg:pr-12">Z katalogu<br />produktów do<br />przewidywalnego<br />źródła wzrostu</h2>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-white/60">Porządek w architekturze katalogu, techniczne SEO i skalowalna publikacja podstron w okresie trzech miesięcy.</p>
           <p className="mt-6 font-mono text-xs font-bold uppercase tracking-widest text-neon">WYZWANIE &nbsp;&rarr;&nbsp; NASZ STACK &nbsp;&rarr;&nbsp; MIERZALNY WYNIK</p>
           <button type="button" onClick={() => setExpanded(!expanded)} className="mt-10 inline-flex items-center gap-3 border border-neon px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-neon transition-all hover:-translate-y-1 hover:bg-neon hover:text-black">{expanded ? 'Zwiń realizację' : 'Poznaj pełną realizację'}<ArrowUpRight size={16} /></button>
