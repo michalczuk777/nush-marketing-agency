@@ -9,6 +9,7 @@ export default function LeadForm() {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
+    const form = event.currentTarget;
     const name = (form.elements.namedItem('name') as HTMLInputElement).value;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const url = (form.elements.namedItem('site') as HTMLInputElement).value;
