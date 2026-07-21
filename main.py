@@ -4,7 +4,7 @@ import uuid
 import smtplib
 from email.message import EmailMessage
 from fastapi import FastAPI, BackgroundTasks
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import requests
@@ -151,6 +151,167 @@ async def analyze_lead(request: LeadRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(process_lead_task, lead_id, request.url, request.email)
     
     return {"status": "success", "message": "Zgłoszenie przyjęte"}
+
+class ApproveRequest(BaseModel):
+    draft: str
+
+@app.get("/approve/{lead_id}", response_class=HTMLResponse)
+async def get_approval_panel(lead_id: str):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT status, ai_draft FROM leads WHERE id = ?", (lead_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        return HTMLResponse("<h1>Nie znaleziono leada</h1>", status_code=404)
+        
+    status, ai_draft = row
+    
+    if status == 'sent':
+        return HTMLResponse("<h1>Audyt już wysłany</h1>")
+        
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <title>Panel Akceptacji NUSH</title>
+        <style>
+            body {{
+                background-color: #0a0a0a;
+                color: #ffffff;
+                font-family: monospace;
+                padding: 40px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }}
+            textarea {{
+                width: 100%;
+                max-width: 800px;
+                height: 400px;
+                background-color: #111111;
+                color: #00ff00;
+                border: 2px solid #00ff00;
+                padding: 15px;
+                font-family: monospace;
+                font-size: 16px;
+                margin-bottom: 20px;
+                outline: none;
+            }}
+            .btn-container {{
+                display: flex;
+                gap: 20px;
+            }}
+            button {{
+                padding: 15px 30px;
+                font-family: monospace;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                border: none;
+                text-transform: uppercase;
+            }}
+            .btn-send {{
+                background-color: #00ff00;
+                color: #000000;
+            }}
+            .btn-reject {{
+                background-color: #444444;
+                color: #ffffff;
+            }}
+        </style>
+    </head>
+    <body>
+        <h2>AKCEPTACJA AUDYTU</h2>
+        <textarea id="draft-text">{ai_draft or ''}</textarea>
+        <div class="btn-container">
+            <button class="btn-send" onclick="sendAudit()">Wyślij Audyt</button>
+            <button class="btn-reject" onclick="rejectAudit()">Odrzuć</button>
+        </div>
+        
+        <script>
+            async function sendAudit() {{
+                const draft = document.getElementById('draft-text').value;
+                const response = await fetch('/api/approve/{lead_id}', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json' }},
+                    body: JSON.stringify({{ draft: draft }})
+                }});
+                if (response.ok) {{
+                    document.body.innerHTML = '<h1>Audyt został wysłany!</h1>';
+                }} else {{
+                    alert('Wystąpił błąd podczas wysyłania');
+                }}
+            }}
+            
+            async function rejectAudit() {{
+                const response = await fetch('/api/reject/{lead_id}', {{
+                    method: 'POST'
+                }});
+                if (response.ok) {{
+                    document.body.innerHTML = '<h1>Audyt odrzucony.</h1>';
+                }} else {{
+                    alert('Wystąpił błąd');
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html_content)
+
+@app.post("/api/approve/{lead_id}")
+async def approve_audit(lead_id: str, request: ApproveRequest):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT email FROM leads WHERE id = ?", (lead_id,))
+    row = cursor.fetchone()
+    
+    if not row:
+        conn.close()
+        return {"status": "error", "message": "Nie znaleziono leada"}
+        
+    client_email = row[0]
+    final_draft = request.draft
+    
+    # 2. Wysyłka maila do klienta
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_pass = os.getenv("SMTP_PASS")
+    smtp_server = os.getenv("SMTP_SERVER")
+    
+    if smtp_user and smtp_pass and smtp_server:
+        try:
+            msg = EmailMessage()
+            msg.set_content(final_draft)
+            msg['Subject'] = "Wstępna diagnoza NUSH"
+            msg['From'] = smtp_user
+            msg['To'] = client_email
+            
+            with smtplib.SMTP_SSL(smtp_server, 465) as server:
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+        except Exception as e:
+            print(f"Błąd wysyłki do klienta: {str(e)}")
+    else:
+        print(f"Symulacja wysyłki do {client_email}:\n{final_draft}")
+        
+    # Zmiana statusu w bazie
+    cursor.execute("UPDATE leads SET status = 'sent', ai_draft = ? WHERE id = ?", (final_draft, lead_id))
+    conn.commit()
+    conn.close()
+    
+    return {"status": "success"}
+
+@app.post("/api/reject/{lead_id}")
+async def reject_audit(lead_id: str):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE leads SET status = 'rejected' WHERE id = ?", (lead_id,))
+    conn.commit()
+    conn.close()
+    return {"status": "success"}
 
 @app.get("/")
 async def serve_index():
