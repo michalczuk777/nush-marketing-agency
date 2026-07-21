@@ -114,7 +114,7 @@ def generate_audit_draft(website_content: str, retries: int = 3) -> str:
         try:
             # Ograniczamy treść by nie przekroczyć limitów darmowego API
             response = client.models.generate_content(
-                model='gemini-2.0-flash',
+                model='gemini-3.5-flash',
                 contents=website_content[:15000],
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
