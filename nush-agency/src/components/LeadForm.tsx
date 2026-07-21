@@ -99,7 +99,7 @@ export default function LeadForm() {
                 transition={{ delay: 0.4 }}
                 className="text-white/60 max-w-sm mx-auto leading-relaxed"
               >
-                Adres WWW został pomyślnie przetworzony przez system. Sztuczna inteligencja rozpoczęła analizę – audyt wkrótce trafi na Twoją skrzynkę.
+                Adres WWW został pomyślnie przyjęty przez system. Nasz zespół już analizuje Twoje zgłoszenie – audyt wkrótce trafi na Twoją skrzynkę.
               </motion.p>
             </motion.div>
           ) : (
