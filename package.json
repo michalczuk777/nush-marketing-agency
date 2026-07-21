@@ -6,7 +6,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm --prefix nush-agency install --include=optional && npm --prefix nush-agency run build",
-    "start": "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    "build": "npm --prefix nush-agency install --include=optional && npm --prefix nush-agency run build"
   }
 }
