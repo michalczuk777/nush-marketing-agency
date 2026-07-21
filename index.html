@@ -266,17 +266,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section id="kontakt" class="py-32 px-6 bg-[#050505] border-t border-white/10 pb-48 md:pb-32">
     <div class="max-w-3xl mx-auto">
         <h2 class="text-3xl md:text-5xl lg:text-6xl font-black uppercase mb-16 text-center leading-tight">ZNAJDŹMY PROBLEM, KTÓRY KOSZTUJE CIĘ NAJWIĘCEJ</h2>
-        <form class="space-y-6">
+        <form id="lead-form" class="space-y-6">
             <div>
-                <input type="text" placeholder="Imię i nazwisko" required>
+                <input type="text" id="name-input" placeholder="Imię i nazwisko" required>
             </div>
             <div>
-                <input type="email" placeholder="E-mail" required>
+                <input type="email" id="email-input" placeholder="E-mail" required>
             </div>
             <div>
-                <input type="url" placeholder="Strona WWW" required>
+                <input type="url" id="url-input" placeholder="Strona WWW" required>
             </div>
-            <button type="submit" class="w-full bg-neon text-black font-black uppercase text-2xl py-8 mt-4 hover:bg-white transition-colors">
+            <button type="submit" id="submit-btn" class="w-full bg-neon text-black font-black uppercase text-2xl py-8 mt-4 hover:bg-white transition-colors">
                 UMÓW BEZPŁATNĄ DIAGNOZĘ
             </button>
             <p class="text-xs text-gray-400 mt-3 text-center">Zostaw adres WWW. W ciągu 24h zrobimy bezpłatny, zewnętrzny audyt technologiczny Twojej strony i wrócimy do Ciebie na maila z jednym, kluczowym wnioskiem o Twoim wąskim gardle. Bez korpo-bełkotu.</p>
@@ -295,5 +295,46 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 </footer>
 
+<script>
+    document.getElementById('lead-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('name-input').value;
+        const email = document.getElementById('email-input').value;
+        const url = document.getElementById('url-input').value;
+        const submitBtn = document.getElementById('submit-btn');
+
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = 'ANALIZOWANIE...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email, url: url }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.status === 'success') {
+                submitBtn.innerText = 'DIAGNOZA ZLECONA';
+                submitBtn.classList.remove('bg-neon', 'hover:bg-white');
+                submitBtn.classList.add('bg-[#00aa00]', 'text-white');
+                document.getElementById('lead-form').reset();
+            } else {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+                alert('Wystąpił błąd po stronie serwera.');
+            }
+        } catch (error) {
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
+            alert('Wystąpił błąd sieci. Spróbuj ponownie.');
+        }
+    });
+</script>
 </body>
 </html>
