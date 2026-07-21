@@ -39,7 +39,7 @@ export default function LeadForm() {
       if (response.ok && result.status === 'success') {
         setSent(true);
       } else {
-        setError('Wystąpił błąd po stronie serwera.');
+        setError(result.message || 'Wystąpił błąd po stronie serwera.');
       }
     } catch (err) {
       setError('Wystąpił błąd sieci. Spróbuj ponownie.');
