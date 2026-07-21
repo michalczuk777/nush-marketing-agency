@@ -167,7 +167,8 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
 # ZADANIE 3: Endpoint z BackgroundTasks
 @app.post("/api/analyze")
 async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTasks, request: Request):
-    client_ip = request.client.host
+    # Fix for proxies (like Railway)
+    client_ip = request.headers.get("X-Forwarded-For", request.client.host).split(",")[0].strip()
     now = time.time()
     
     # Prosty Rate Limiting: max 1 request na minutę z jednego IP
