@@ -6,6 +6,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm --prefix nush-agency install --include=optional && npm --prefix nush-agency run build"
+    "build": "echo 'No build step required for static HTML and FastAPI'"
   }
 }

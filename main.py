@@ -3,7 +3,7 @@ import sqlite3
 import uuid
 import smtplib
 from email.message import EmailMessage
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import FastAPI, BackgroundTasks, Request
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -90,7 +90,7 @@ def generate_audit_draft(website_content: str) -> str:
         return f"Błąd podczas generowania audytu z AI: {str(e)}"
 
 # Logika tła (Background Task)
-def process_lead_task(lead_id: str, url: str, email: str):
+def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
     # 1. Pobranie strony
     content = analyze_website(url)
     
@@ -108,7 +108,7 @@ def process_lead_task(lead_id: str, url: str, email: str):
     conn.close()
     
     # 4. Wewnętrzny mail organizacyjny
-    approval_link = f"https://localhost:8000/approve/{lead_id}"
+    approval_link = f"{base_url}/approve/{lead_id}"
     email_subject = "NOWY LEAD NUSH"
     email_body = f"Nowa analiza gotowa. Kliknij, aby zatwierdzić: {approval_link}"
     
@@ -136,19 +136,20 @@ def process_lead_task(lead_id: str, url: str, email: str):
 
 # ZADANIE 3: Endpoint z BackgroundTasks
 @app.post("/api/analyze")
-async def analyze_lead(request: LeadRequest, background_tasks: BackgroundTasks):
+async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTasks, request: Request):
     lead_id = str(uuid.uuid4())
     
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO leads (id, url, email, status) VALUES (?, ?, ?, ?)",
-        (lead_id, request.url, request.email, 'pending')
+        (lead_id, request_data.url, request_data.email, 'pending')
     )
     conn.commit()
     conn.close()
     
-    background_tasks.add_task(process_lead_task, lead_id, request.url, request.email)
+    base_url = str(request.base_url).rstrip("/")
+    background_tasks.add_task(process_lead_task, lead_id, request_data.url, request_data.email, base_url)
     
     return {"status": "success", "message": "Zgłoszenie przyjęte"}
 
@@ -170,6 +171,8 @@ async def get_approval_panel(lead_id: str):
     
     if status == 'sent':
         return HTMLResponse("<h1>Audyt już wysłany</h1>")
+    elif status == 'rejected':
+        return HTMLResponse("<h1>Audyt został odrzucony</h1>")
         
     html_content = f"""
     <!DOCTYPE html>
@@ -316,5 +319,3 @@ async def reject_audit(lead_id: str):
 @app.get("/")
 async def serve_index():
     return FileResponse("index.html")
-
-app.mount("/", StaticFiles(directory="."), name="static")
