@@ -171,7 +171,15 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
     # 4. Wewnętrzny mail organizacyjny
     approval_link = f"{base_url}/approve/{lead_id}"
     email_subject = "NOWY LEAD NUSH"
-    email_body = f"Nowa analiza gotowa. Kliknij, aby zatwierdzić: {approval_link}"
+    email_body = (
+        f"Nowy lead wpadł do systemu!\n\n"
+        f"Dane klienta:\n"
+        f"Imię: {client_name}\n"
+        f"Email: {email}\n"
+        f"Strona WWW: {url}\n\n"
+        f"Nowa analiza AI jest gotowa do weryfikacji. Kliknij, aby zatwierdzić lub odrzucić:\n"
+        f"{approval_link}"
+    )
     
     resend.api_key = os.getenv("RESEND_API_KEY")
     
