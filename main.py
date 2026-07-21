@@ -112,7 +112,7 @@ def generate_audit_draft(website_content: str) -> str:
             "Bez lania wody, bez powitań typu 'Szanowny Panie'. Zakończ 'Pozdrawiam, NUSH'."
         )
         
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_prompt)
+        model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=system_prompt)
         # Ograniczamy treść by nie przekroczyć limitów darmowego API
         response = model.generate_content(website_content[:15000])
         return response.text
@@ -154,13 +154,22 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
             msg = EmailMessage()
             msg.set_content(email_body)
             msg['Subject'] = email_subject
-            msg['From'] = smtp_user
-            msg['To'] = smtp_user # wysyłamy do siebie (na adres organizacyjny)
             
-            # Można dostosować port w zależności od dostawcy (465 SSL, 587 TLS itp.)
-            with smtplib.SMTP_SSL(smtp_server, 465) as server:
-                server.login(smtp_user, smtp_pass)
-                server.send_message(msg)
+            # Wsparcie dla CONTACT_FROM i CONTACT_TO z panelu
+            msg['From'] = os.getenv("CONTACT_FROM", smtp_user)
+            msg['To'] = os.getenv("CONTACT_TO", smtp_user)
+            
+            smtp_port = int(os.getenv("SMTP_PORT", 465))
+            
+            if smtp_port == 465:
+                with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+                    server.login(smtp_user, smtp_pass)
+                    server.send_message(msg)
+            else:
+                with smtplib.SMTP(smtp_server, smtp_port) as server:
+                    server.starttls()
+                    server.login(smtp_user, smtp_pass)
+                    server.send_message(msg)
         except Exception as e:
             print(f"Błąd wysyłki powiadomienia e-mail: {str(e)}")
 
@@ -335,12 +344,20 @@ async def approve_audit(lead_id: str, request: ApproveRequest):
             msg = EmailMessage()
             msg.set_content(final_draft)
             msg['Subject'] = "Wstępna diagnoza NUSH"
-            msg['From'] = smtp_user
+            msg['From'] = os.getenv("CONTACT_FROM", smtp_user)
             msg['To'] = client_email
             
-            with smtplib.SMTP_SSL(smtp_server, 465) as server:
-                server.login(smtp_user, smtp_pass)
-                server.send_message(msg)
+            smtp_port = int(os.getenv("SMTP_PORT", 465))
+            
+            if smtp_port == 465:
+                with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+                    server.login(smtp_user, smtp_pass)
+                    server.send_message(msg)
+            else:
+                with smtplib.SMTP(smtp_server, smtp_port) as server:
+                    server.starttls()
+                    server.login(smtp_user, smtp_pass)
+                    server.send_message(msg)
         except Exception as e:
             print(f"Błąd wysyłki do klienta: {str(e)}")
     else:
