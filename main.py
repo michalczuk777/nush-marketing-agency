@@ -112,7 +112,7 @@ def generate_audit_draft(website_content: str) -> str:
         client = genai.Client(api_key=gemini_api_key)
         # Ograniczamy treść by nie przekroczyć limitów darmowego API
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=website_content[:15000],
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
