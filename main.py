@@ -9,7 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import requests
 from bs4 import BeautifulSoup
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 import html
 import time
@@ -18,11 +19,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # ZADANIE 1: Zależności i Zmienne Środowiskowe
 load_dotenv()
-
-# Konfiguracja API Gemini
-gemini_api_key = os.getenv("GEMINI_API_KEY")
-if gemini_api_key:
-    genai.configure(api_key=gemini_api_key)
 
 app = FastAPI()
 
@@ -99,6 +95,7 @@ def analyze_website(url: str) -> str:
         return f"Błąd pobierania strony: {str(e)}"
 
 def generate_audit_draft(website_content: str) -> str:
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
     if not gemini_api_key:
         return "Brak klucza API Gemini"
         
@@ -112,9 +109,15 @@ def generate_audit_draft(website_content: str) -> str:
             "Bez lania wody, bez powitań typu 'Szanowny Panie'. Zakończ 'Pozdrawiam, NUSH'."
         )
         
-        model = genai.GenerativeModel('gemini-1.5-flash-latest', system_instruction=system_prompt)
+        client = genai.Client(api_key=gemini_api_key)
         # Ograniczamy treść by nie przekroczyć limitów darmowego API
-        response = model.generate_content(website_content[:15000])
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=website_content[:15000],
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+            )
+        )
         return response.text
     except Exception as e:
         return f"Błąd podczas generowania audytu z AI: {str(e)}"
