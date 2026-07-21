@@ -316,6 +316,10 @@ async def reject_audit(lead_id: str):
     conn.close()
     return {"status": "success"}
 
-@app.get("/")
-async def serve_index():
-    return FileResponse("index.html")
+@app.exception_handler(404)
+async def custom_404_handler(request, exc):
+    if request.url.path.startswith("/api/") or request.url.path.startswith("/approve/"):
+        return {"error": "Not found"}
+    return FileResponse("nush-agency/dist/index.html")
+
+app.mount("/", StaticFiles(directory="nush-agency/dist", html=True), name="static")
