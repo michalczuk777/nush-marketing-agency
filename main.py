@@ -295,8 +295,7 @@ async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTa
         conn.close()
         send_security_alert("Rate Limit URL/Email (>3 w bazie)", request_data.email, request_data.url, client_ip)
         return {"status": "error", "message": "Dla tego adresu email lub strony wykorzystano już darmowy limit audytów."}
-        
-    RATE_LIMITS[client_ip].append(now)
+    RATE_LIMITS.setdefault(client_ip, []).append(now)
     
     lead_id = str(uuid.uuid4())
     
