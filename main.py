@@ -144,7 +144,7 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
     
     smtp_user = os.getenv("SMTP_USER")
     smtp_pass = os.getenv("SMTP_PASS")
-    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_server = os.getenv("SMTP_SERVER") or os.getenv("SMTP_HOST")
     
     # Zawsze wypisujemy w konsoli serwera do testów
     print(f"\n[{lead_id}] {email_subject}\n{email_body}\n--- WYGENEROWANY DRAFT ---\n{draft}\n")
@@ -328,7 +328,7 @@ async def approve_audit(lead_id: str, request: ApproveRequest):
     # 2. Wysyłka maila do klienta
     smtp_user = os.getenv("SMTP_USER")
     smtp_pass = os.getenv("SMTP_PASS")
-    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_server = os.getenv("SMTP_SERVER") or os.getenv("SMTP_HOST")
     
     if smtp_user and smtp_pass and smtp_server:
         try:
