@@ -95,17 +95,23 @@ def analyze_website(url: str) -> str:
     except Exception as e:
         return f"Błąd pobierania strony: {str(e)}"
 
-def generate_audit_draft(website_content: str, retries: int = 3) -> str:
+def generate_audit_draft(website_content: str, retries: int = 3, client_name: str = "") -> str:
     gemini_api_key = os.getenv("GEMINI_API_KEY")
     if not gemini_api_key:
         return "Brak klucza API Gemini"
         
+    name_instruction = f" Zwracaj się do klienta po imieniu ({client_name})." if client_name else " Zwracaj się do klienta uprzejmie i bezpośrednio."
+        
     system_prompt = (
-        "Jesteś inżynierem z butiku technologicznego NUSH. Przeanalizuj podany tekst ze strony WWW. "
-        "Znajdź 1-2 wąskie gardła (np. technologiczne lub analityczne). "
-        "Napisz krótki, surowy, techniczny e-mail (max 4 zdania) do właściciela, wskazując problem "
-        "i proponując 15-minutowy sprint wdrożeniowy w celu jego naprawy. "
-        "Bez lania wody, bez powitań typu 'Szanowny Panie'. Zakończ 'Pozdrawiam, NUSH'."
+        "Jesteś inżynierem technologii i analitykiem z butiku NUSH. Przeanalizuj podany tekst ze strony WWW. "
+        "Znajdź 1-2 autentyczne, konkretne wąskie gardła (np. spadek konwersji, błędy UX/UI, brak analityki). "
+        "Napisz e-mail do właściciela, wskazując te problemy w sposób bardzo naturalny, merytoryczny i 'ludzki'. "
+        "Tekst absolutnie NIE MOŻE brzmieć jak wygenerowany przez sztuczną inteligencję (unikaj podpunktów, przesadnego entuzjazmu, korpomowy i sztucznego żargonu). "
+        "Pisz tak, jakby doświadczony ekspert pisał szczerą wiadomość do drugiego człowieka, którego biznes chce ulepszyć. "
+        f"Rozpocznij maila od naturalnego, przyjaznego powitania.{name_instruction} "
+        "Nie wywieraj presji sprzedażowej, po prostu wskaż problem. "
+        "Na końcu maila zapytaj w całkowicie niezobowiązujący sposób, kiedy moglibyście złapać się na 15-minutową rozmowę w tym tygodniu, by luźno omówić ten temat. "
+        "Zakończ maila zwrotem: 'Pozdrawia zespół NUSH'."
     )
     
     client = genai.Client(api_key=gemini_api_key)
@@ -141,11 +147,16 @@ def generate_audit_draft(website_content: str, retries: int = 3) -> str:
 
 # Logika tła (Background Task)
 def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
-    # 1. Pobranie strony
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM leads WHERE id = ?", (lead_id,))
+    row = cursor.fetchone()
+    client_name = row[0] if (row and row[0]) else ""
+    
     content = analyze_website(url)
     
     # 2. Wygenerowanie szkicu z AI
-    draft = generate_audit_draft(content)
+    draft = generate_audit_draft(content, client_name=client_name)
     
     # 3. Aktualizacja rekordu w bazie
     conn = sqlite3.connect(DB_FILE)
@@ -335,9 +346,6 @@ async def approve_audit(lead_id: str, request: ApproveRequest):
         
     client_email, client_name = row
     final_draft = request.draft
-    
-    if client_name:
-        final_draft = f"Cześć {client_name},\n\n" + final_draft
     
     resend.api_key = os.getenv("RESEND_API_KEY")
     
