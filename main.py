@@ -322,4 +322,10 @@ async def custom_404_handler(request, exc):
         return {"error": "Not found"}
     return FileResponse("nush-agency/dist/index.html")
 
+import os
+os.makedirs("nush-agency/dist", exist_ok=True)
+if not os.path.exists("nush-agency/dist/index.html"):
+    with open("nush-agency/dist/index.html", "w") as f:
+        f.write("<h1>Błąd wdrożenia Railway</h1><p>Katalog dist nie został poprawnie zbudowany przez Node.js.</p>")
+
 app.mount("/", StaticFiles(directory="nush-agency/dist", html=True), name="static")
