@@ -17,6 +17,9 @@ import html
 import time
 from urllib.parse import urlparse
 from fastapi.middleware.cors import CORSMiddleware
+import socket
+import ipaddress
+import re
 
 # ZADANIE 1: Zależności i Zmienne Środowiskowe
 load_dotenv()
@@ -26,7 +29,7 @@ app = FastAPI()
 # Zabezpieczenie CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Na produkcji zdefiniuj konkretną domenę
+    allow_origins=["https://nush.pl", "http://localhost:5173", "http://localhost:8000"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,8 +38,13 @@ app.add_middleware(
 DB_FILE = "nush_leads.db"
 RATE_LIMITS = {} # Proste logowanie IP -> timestamp
 
+def get_db_connection():
+    conn = sqlite3.connect(DB_FILE, timeout=10.0)
+    conn.execute('PRAGMA journal_mode=WAL;')
+    return conn
+
 def init_db():
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS leads (
@@ -87,8 +95,25 @@ BLACKLIST_DOMAINS = [
     'yahoo.com', 'reddit.com', 'gov.pl'
 ]
 
+def is_valid_public_url(url: str) -> bool:
+    try:
+        parsed = urlparse(url)
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+        ip = socket.gethostbyname(hostname)
+        ip_obj = ipaddress.ip_address(ip)
+        if ip_obj.is_loopback or ip_obj.is_private or ip_obj.is_reserved or not ip_obj.is_global:
+            return False
+        return True
+    except Exception:
+        return False
+
 # ZADANIE 2: Logika Scrapowania i AI
 def analyze_website(url: str) -> str:
+    if not is_valid_public_url(url):
+        return "Błąd: Adres URL rozwiązuje się do sieci prywatnej lub jest nieosiągalny (Blokada bezpieczeństwa SSRF)."
+
     try:
         parsed_url = urlparse(url)
         if parsed_url.scheme not in ('http', 'https'):
@@ -173,7 +198,7 @@ def generate_audit_draft(website_content: str, retries: int = 3, client_name: st
 
 # Logika tła (Background Task)
 def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT name FROM leads WHERE id = ?", (lead_id,))
     row = cursor.fetchone()
@@ -185,7 +210,7 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
     draft = generate_audit_draft(content, client_name=client_name)
     
     # 3. Aktualizacja rekordu w bazie
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         "UPDATE leads SET ai_draft = ? WHERE id = ?",
@@ -234,6 +259,11 @@ async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTa
         send_security_alert("Honeypot (Bot)", request_data.email, request_data.url, client_ip)
         return {"status": "success", "message": "Zgłoszenie przyjęte"} # Ciche odrzucenie
         
+    # Walidacja Email
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", request_data.email):
+        send_security_alert("Nieprawidłowy Email", request_data.email, request_data.url, client_ip)
+        return {"status": "error", "message": "Podano nieprawidłowy adres e-mail."}
+        
     # 2. Zabezpieczenie Domen (Blacklist)
     domain = urlparse(request_data.url).netloc.lower()
     if any(blocked in domain for blocked in BLACKLIST_DOMAINS):
@@ -247,12 +277,17 @@ async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTa
     # Usuwamy zapytania starsze niż 24h
     RATE_LIMITS[client_ip] = [t for t in RATE_LIMITS[client_ip] if now - t < 86400]
     
-    if len(RATE_LIMITS[client_ip]) >= 3:
+    # Usuwamy całkowicie puste klucze z pamięci (Ochrona przed wyciekiem RAM przy zmasowanym ataku)
+    for ip in list(RATE_LIMITS.keys()):
+        if not RATE_LIMITS[ip]:
+            del RATE_LIMITS[ip]
+    
+    if client_ip in RATE_LIMITS and len(RATE_LIMITS[client_ip]) >= 3:
         send_security_alert("Rate Limit IP (>3/24h)", request_data.email, request_data.url, client_ip)
         return {"status": "error", "message": "Przekroczono dzienny limit zapytań z tego adresu IP."}
         
     # 4. Blokada powielania w bazie
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT COUNT(*) FROM leads WHERE url = ? OR email = ?", (request_data.url, request_data.email))
     count = cursor.fetchone()[0]
@@ -265,7 +300,7 @@ async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTa
     
     lead_id = str(uuid.uuid4())
     
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO leads (id, url, email, name, status) VALUES (?, ?, ?, ?, ?)",
@@ -284,7 +319,7 @@ class ApproveRequest(BaseModel):
 
 @app.get("/approve/{lead_id}", response_class=HTMLResponse)
 async def get_approval_panel(lead_id: str):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT status, ai_draft FROM leads WHERE id = ?", (lead_id,))
     row = cursor.fetchone()
@@ -396,7 +431,7 @@ async def get_approval_panel(lead_id: str):
 
 @app.post("/api/approve/{lead_id}")
 async def approve_audit(lead_id: str, request: ApproveRequest):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT email, name FROM leads WHERE id = ?", (lead_id,))
     row = cursor.fetchone()
@@ -434,7 +469,7 @@ async def approve_audit(lead_id: str, request: ApproveRequest):
 
 @app.post("/api/reject/{lead_id}")
 async def reject_audit(lead_id: str):
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE leads SET status = 'rejected' WHERE id = ?", (lead_id,))
     conn.commit()
