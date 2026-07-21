@@ -95,39 +95,49 @@ def analyze_website(url: str) -> str:
     except Exception as e:
         return f"Błąd pobierania strony: {str(e)}"
 
-def generate_audit_draft(website_content: str) -> str:
+def generate_audit_draft(website_content: str, retries: int = 3) -> str:
     gemini_api_key = os.getenv("GEMINI_API_KEY")
     if not gemini_api_key:
         return "Brak klucza API Gemini"
         
-    try:
-        # System prompt zgodnie z zadaniem
-        system_prompt = (
-            "Jesteś inżynierem z butiku technologicznego NUSH. Przeanalizuj podany tekst ze strony WWW. "
-            "Znajdź 1-2 wąskie gardła (np. technologiczne lub analityczne). "
-            "Napisz krótki, surowy, techniczny e-mail (max 4 zdania) do właściciela, wskazując problem "
-            "i proponując 15-minutowy sprint wdrożeniowy w celu jego naprawy. "
-            "Bez lania wody, bez powitań typu 'Szanowny Panie'. Zakończ 'Pozdrawiam, NUSH'."
-        )
-        
-        client = genai.Client(api_key=gemini_api_key)
-        # Ograniczamy treść by nie przekroczyć limitów darmowego API
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=website_content[:15000],
-            config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
-            )
-        )
-        return response.text
-    except Exception as e:
+    system_prompt = (
+        "Jesteś inżynierem z butiku technologicznego NUSH. Przeanalizuj podany tekst ze strony WWW. "
+        "Znajdź 1-2 wąskie gardła (np. technologiczne lub analityczne). "
+        "Napisz krótki, surowy, techniczny e-mail (max 4 zdania) do właściciela, wskazując problem "
+        "i proponując 15-minutowy sprint wdrożeniowy w celu jego naprawy. "
+        "Bez lania wody, bez powitań typu 'Szanowny Panie'. Zakończ 'Pozdrawiam, NUSH'."
+    )
+    
+    client = genai.Client(api_key=gemini_api_key)
+    
+    for attempt in range(retries):
         try:
-            available_models = [m.name for m in client.models.list()]
-            models_str = ", ".join(available_models)
-        except Exception:
-            models_str = "Nie udało się pobrać listy modeli."
+            # Ograniczamy treść by nie przekroczyć limitów darmowego API
+            response = client.models.generate_content(
+                model='gemini-2.0-flash',
+                contents=website_content[:15000],
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                )
+            )
+            return response.text
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                if attempt < retries - 1:
+                    print(f"Przekroczono limit zapytań (429). Oczekiwanie 60 sekund przed ponowną próbą {attempt+2}/{retries}...")
+                    time.sleep(60)
+                    continue
+                    
+            try:
+                available_models = [m.name for m in client.models.list()]
+                models_str = ", ".join(available_models)
+            except Exception:
+                models_str = "Nie udało się pobrać listy modeli."
+                
+            return f"Błąd podczas generowania audytu z AI: {error_str}\n\nTwoje dostępne modele dla tego klucza API to:\n{models_str}"
             
-        return f"Błąd podczas generowania audytu z AI: {str(e)}\n\nTwoje dostępne modele dla tego klucza API to:\n{models_str}"
+    return "Błąd: Przekroczono limit prób generowania z powodu błędu 429 (Resource Exhausted)."
 
 # Logika tła (Background Task)
 def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
