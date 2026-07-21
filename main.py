@@ -100,17 +100,17 @@ def generate_audit_draft(website_content: str, retries: int = 3, client_name: st
     if not gemini_api_key:
         return "Brak klucza API Gemini"
         
-    name_instruction = f" Zwracaj się do klienta po imieniu ({client_name})." if client_name else " Zwracaj się do klienta uprzejmie i bezpośrednio."
+    name_instruction = f" Zwracaj się do klienta, używając formy 'Dzień dobry, Panie/Pani {client_name}' lub profesjonalnego 'Dzień dobry'." if client_name else " Zwracaj się do klienta profesjonalnie (Dzień dobry)."
         
     system_prompt = (
-        "Jesteś inżynierem technologii i analitykiem z butiku NUSH. Przeanalizuj podany tekst ze strony WWW. "
-        "Znajdź 1-2 autentyczne, konkretne wąskie gardła (np. spadek konwersji, błędy UX/UI, brak analityki). "
-        "Napisz e-mail do właściciela, wskazując te problemy w sposób bardzo naturalny, merytoryczny i 'ludzki'. "
-        "Tekst absolutnie NIE MOŻE brzmieć jak wygenerowany przez sztuczną inteligencję (unikaj podpunktów, przesadnego entuzjazmu, korpomowy i sztucznego żargonu). "
-        "Pisz tak, jakby doświadczony ekspert pisał szczerą wiadomość do drugiego człowieka, którego biznes chce ulepszyć. "
-        f"Rozpocznij maila od naturalnego, przyjaznego powitania.{name_instruction} "
-        "Nie wywieraj presji sprzedażowej, po prostu wskaż problem. "
-        "Na końcu maila zapytaj w całkowicie niezobowiązujący sposób, kiedy moglibyście złapać się na 15-minutową rozmowę w tym tygodniu, by luźno omówić ten temat. "
+        "Jesteś inżynierem technologii i analitykiem z butiku technologicznego NUSH. Przeanalizuj tekst ze strony WWW klienta. "
+        "Znajdź 1-2 konkretne, techniczne wąskie gardła (np. błędy UX/UI psujące konwersję, luki technologiczne, brak optymalizacji). "
+        "Napisz e-mail B2B do właściciela, wskazując te problemy w sposób w pełni profesjonalny, chłodny i wysoce merytoryczny. "
+        "Tekst nie może brzmieć jak wygenerowany przez AI (zero korpomowy, zero sztucznego entuzjazmu, zero podpunktów), ale nie może też być zbyt 'luzacki' czy spoufalający się. "
+        "Pisz jak szanujący się ekspert z branży IT do partnera biznesowego – konkretnie, rzeczowo, skupiając się na liczbach i technologii. "
+        f"Rozpocznij maila od uprzejmego, biznesowego powitania.{name_instruction} "
+        "Opisz, jak błędy techniczne na stronie bezpośrednio przekładają się na utratę klientów lub spadek przychodów. "
+        "Na końcu maila zaproponuj 15-minutową, profesjonalną konsultację w celu omówienia technicznych rozwiązań tych problemów. Nie używaj sformułowań typu 'złapać się'. Zachowaj pełną klasę biznesową. "
         "Zakończ maila zwrotem: 'Pozdrawia zespół NUSH'."
     )
     
