@@ -9,12 +9,13 @@ export default function LeadForm() {
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
-    const form = event.currentTarget;
-    if ((form.elements.namedItem('website') as HTMLInputElement).value) return;
-
     const name = (form.elements.namedItem('name') as HTMLInputElement).value;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const url = (form.elements.namedItem('site') as HTMLInputElement).value;
+    const company_fax = (form.elements.namedItem('company_fax') as HTMLInputElement).value;
+    
+    // Bot check locally as well (optional, but we want the backend to log it)
+    // We send it to backend so backend logs the spam attempt.
     
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         setError('Adres strony musi zaczynać się od http:// lub https://');
@@ -29,7 +30,7 @@ export default function LeadForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: name, email: email, url: url }),
+        body: JSON.stringify({ name: name, email: email, url: url, company_fax: company_fax }),
       });
 
       const result = await response.json();
@@ -115,7 +116,7 @@ export default function LeadForm() {
               <motion.input initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="name-input" name="name" type="text" placeholder="Imię i nazwisko" required aria-label="Imię i nazwisko" className="field" />
               <motion.input initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="email-input" name="email" type="email" placeholder="E-mail" required aria-label="E-mail" className="field" />
               <motion.input initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="url-input" name="site" type="url" placeholder="Strona WWW" required aria-label="Strona WWW" className="field" />
-              <input name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+              <input name="company_fax" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
               
               {error && (
                 <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="text-sm text-red-400 font-medium">

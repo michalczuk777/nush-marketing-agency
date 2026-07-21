@@ -44,7 +44,8 @@ def init_db():
             url TEXT,
             email TEXT,
             ai_draft TEXT,
-            status TEXT DEFAULT 'pending'
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     try:
@@ -60,6 +61,31 @@ class LeadRequest(BaseModel):
     name: str
     email: str
     url: str
+    company_fax: str | None = None
+
+def send_security_alert(reason: str, email: str, url: str, client_ip: str):
+    resend.api_key = os.getenv("RESEND_API_KEY")
+    if not resend.api_key:
+        return
+    try:
+        from_email = os.getenv("CONTACT_FROM", "onboarding@resend.dev")
+        to_email = os.getenv("CONTACT_TO", from_email)
+        body = f"System NUSH zablokował podejrzane żądanie.\n\nPowód: {reason}\nIP: {client_ip}\nEmail: {email}\nURL: {url}"
+        resend.Emails.send({
+            "from": from_email,
+            "to": to_email,
+            "subject": f"⚠️ ALARM BEZPIECZEŃSTWA: {reason}",
+            "text": body
+        })
+    except Exception as e:
+        print(f"Błąd alertu bezp: {str(e)}")
+
+BLACKLIST_DOMAINS = [
+    'google.', 'facebook.', 'youtube.', 'allegro.pl', 'onet.pl', 'wp.pl', 'interia.pl', 
+    'olx.pl', 'otomoto.pl', 'wikipedia.org', 'amazon.', 'tiktok.com', 'instagram.com', 
+    'twitter.com', 'x.com', 'linkedin.com', 'netflix.com', 'apple.com', 'microsoft.com', 
+    'yahoo.com', 'reddit.com', 'gov.pl'
+]
 
 # ZADANIE 2: Logika Scrapowania i AI
 def analyze_website(url: str) -> str:
@@ -71,14 +97,14 @@ def analyze_website(url: str) -> str:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0'
         }
-        # SSRF i DoS Protection: Stream download, max 1MB
-        response = requests.get(url, headers=headers, timeout=10, stream=True)
+        # SSRF i DoS Protection: Stream download, max 3MB
+        response = requests.get(url, headers=headers, timeout=15, stream=True)
         response.raise_for_status()
         
         content = b""
         for chunk in response.iter_content(chunk_size=8192):
             content += chunk
-            if len(content) > 1024 * 1024: # Limit 1MB
+            if len(content) > 3 * 1024 * 1024: # Limit 3MB
                 break
                 
         soup = BeautifulSoup(content, 'html.parser')
@@ -200,15 +226,42 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
 # ZADANIE 3: Endpoint z BackgroundTasks
 @app.post("/api/analyze")
 async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTasks, request: Request):
-    # Fix for proxies (like Railway)
     client_ip = request.headers.get("X-Forwarded-For", request.client.host).split(",")[0].strip()
     now = time.time()
     
-    # Prosty Rate Limiting: max 1 request na minutę z jednego IP
-    if client_ip in RATE_LIMITS:
-        if now - RATE_LIMITS[client_ip] < 60:
-            return {"status": "error", "message": "Zbyt wiele zapytań. Spróbuj ponownie za minutę."}
-    RATE_LIMITS[client_ip] = now
+    # 1. Zabezpieczenie Front-end (Honeypot)
+    if request_data.company_fax:
+        send_security_alert("Honeypot (Bot)", request_data.email, request_data.url, client_ip)
+        return {"status": "success", "message": "Zgłoszenie przyjęte"} # Ciche odrzucenie
+        
+    # 2. Zabezpieczenie Domen (Blacklist)
+    domain = urlparse(request_data.url).netloc.lower()
+    if any(blocked in domain for blocked in BLACKLIST_DOMAINS):
+        send_security_alert("Zablokowana domena", request_data.email, request_data.url, client_ip)
+        return {"status": "error", "message": "Podana strona jest zbyt duża lub nieobsługiwana do automatycznej analizy."}
+        
+    # 3. Rate Limiting per IP (Max 3 na dobę)
+    if client_ip not in RATE_LIMITS:
+        RATE_LIMITS[client_ip] = []
+    
+    # Usuwamy zapytania starsze niż 24h
+    RATE_LIMITS[client_ip] = [t for t in RATE_LIMITS[client_ip] if now - t < 86400]
+    
+    if len(RATE_LIMITS[client_ip]) >= 3:
+        send_security_alert("Rate Limit IP (>3/24h)", request_data.email, request_data.url, client_ip)
+        return {"status": "error", "message": "Przekroczono dzienny limit zapytań z tego adresu IP."}
+        
+    # 4. Blokada powielania w bazie
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM leads WHERE url = ? OR email = ?", (request_data.url, request_data.email))
+    count = cursor.fetchone()[0]
+    if count >= 3:
+        conn.close()
+        send_security_alert("Rate Limit URL/Email (>3 w bazie)", request_data.email, request_data.url, client_ip)
+        return {"status": "error", "message": "Dla tego adresu email lub strony wykorzystano już darmowy limit audytów."}
+        
+    RATE_LIMITS[client_ip].append(now)
     
     lead_id = str(uuid.uuid4())
     
