@@ -325,7 +325,13 @@ async def custom_404_handler(request, exc):
 import os
 os.makedirs("nush-agency/dist", exist_ok=True)
 if not os.path.exists("nush-agency/dist/index.html"):
+    import subprocess
+    try:
+        tree_output = subprocess.check_output(["ls", "-R", "."]).decode("utf-8")
+    except Exception as e:
+        tree_output = str(e)
+    
     with open("nush-agency/dist/index.html", "w") as f:
-        f.write("<h1>Błąd wdrożenia Railway</h1><p>Katalog dist nie został poprawnie zbudowany przez Node.js.</p>")
+        f.write(f"<h1>Błąd wdrożenia Railway</h1><p>Katalog dist nie został poprawnie zbudowany przez Node.js.</p><pre>{tree_output}</pre>")
 
 app.mount("/", StaticFiles(directory="nush-agency/dist", html=True), name="static")
