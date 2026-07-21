@@ -5,6 +5,7 @@ import smtplib
 from email.message import EmailMessage
 from fastapi import FastAPI, BackgroundTasks, Request
 from fastapi.responses import FileResponse, HTMLResponse
+import resend
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import requests
@@ -145,36 +146,21 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
     email_subject = "NOWY LEAD NUSH"
     email_body = f"Nowa analiza gotowa. Kliknij, aby zatwierdzić: {approval_link}"
     
-    smtp_user = os.getenv("SMTP_USER")
-    smtp_pass = os.getenv("SMTP_PASS")
-    smtp_server = os.getenv("SMTP_SERVER") or os.getenv("SMTP_HOST")
+    resend.api_key = os.getenv("RESEND_API_KEY")
     
-    # Zawsze wypisujemy w konsoli serwera do testów
-    print(f"\n[{lead_id}] {email_subject}\n{email_body}\n--- WYGENEROWANY DRAFT ---\n{draft}\n")
-    
-    if smtp_user and smtp_pass and smtp_server:
+    if resend.api_key:
         try:
-            msg = EmailMessage()
-            msg.set_content(email_body)
-            msg['Subject'] = email_subject
+            from_email = os.getenv("CONTACT_FROM", "onboarding@resend.dev")
+            to_email = os.getenv("CONTACT_TO", from_email)
             
-            # Wsparcie dla CONTACT_FROM i CONTACT_TO z panelu
-            msg['From'] = os.getenv("CONTACT_FROM", smtp_user)
-            msg['To'] = os.getenv("CONTACT_TO", smtp_user)
-            
-            smtp_port = int(os.getenv("SMTP_PORT", 465))
-            
-            if smtp_port == 465:
-                with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-                    server.login(smtp_user, smtp_pass)
-                    server.send_message(msg)
-            else:
-                with smtplib.SMTP(smtp_server, smtp_port) as server:
-                    server.starttls()
-                    server.login(smtp_user, smtp_pass)
-                    server.send_message(msg)
+            resend.Emails.send({
+                "from": from_email,
+                "to": to_email,
+                "subject": email_subject,
+                "text": email_body
+            })
         except Exception as e:
-            print(f"Błąd wysyłki powiadomienia e-mail: {str(e)}")
+            print(f"Błąd wysyłki powiadomienia e-mail (Resend): {str(e)}")
 
 # ZADANIE 3: Endpoint z BackgroundTasks
 @app.post("/api/analyze")
@@ -337,32 +323,20 @@ async def approve_audit(lead_id: str, request: ApproveRequest):
     if client_name:
         final_draft = f"Cześć {client_name},\n\n" + final_draft
     
-    # 2. Wysyłka maila do klienta
-    smtp_user = os.getenv("SMTP_USER")
-    smtp_pass = os.getenv("SMTP_PASS")
-    smtp_server = os.getenv("SMTP_SERVER") or os.getenv("SMTP_HOST")
+    resend.api_key = os.getenv("RESEND_API_KEY")
     
-    if smtp_user and smtp_pass and smtp_server:
+    if resend.api_key:
         try:
-            msg = EmailMessage()
-            msg.set_content(final_draft)
-            msg['Subject'] = "Wstępna diagnoza NUSH"
-            msg['From'] = os.getenv("CONTACT_FROM", smtp_user)
-            msg['To'] = client_email
+            from_email = os.getenv("CONTACT_FROM", "onboarding@resend.dev")
             
-            smtp_port = int(os.getenv("SMTP_PORT", 465))
-            
-            if smtp_port == 465:
-                with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
-                    server.login(smtp_user, smtp_pass)
-                    server.send_message(msg)
-            else:
-                with smtplib.SMTP(smtp_server, smtp_port) as server:
-                    server.starttls()
-                    server.login(smtp_user, smtp_pass)
-                    server.send_message(msg)
+            resend.Emails.send({
+                "from": from_email,
+                "to": client_email,
+                "subject": "Wstępna diagnoza NUSH",
+                "text": final_draft
+            })
         except Exception as e:
-            print(f"Błąd wysyłki do klienta: {str(e)}")
+            print(f"Błąd wysyłki do klienta (Resend): {str(e)}")
     else:
         print(f"Symulacja wysyłki do {client_email}:\n{final_draft}")
         
