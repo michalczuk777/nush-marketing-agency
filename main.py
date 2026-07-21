@@ -11,6 +11,10 @@ import requests
 from bs4 import BeautifulSoup
 import google.generativeai as genai
 from dotenv import load_dotenv
+import html
+import time
+from urllib.parse import urlparse
+from fastapi.middleware.cors import CORSMiddleware
 
 # ZADANIE 1: Zależności i Zmienne Środowiskowe
 load_dotenv()
@@ -21,7 +25,18 @@ if gemini_api_key:
     genai.configure(api_key=gemini_api_key)
 
 app = FastAPI()
+
+# Zabezpieczenie CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Na produkcji zdefiniuj konkretną domenę
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 DB_FILE = "nush_leads.db"
+RATE_LIMITS = {} # Proste logowanie IP -> timestamp
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -35,26 +50,41 @@ def init_db():
             status TEXT DEFAULT 'pending'
         )
     ''')
+    try:
+        cursor.execute("ALTER TABLE leads ADD COLUMN name TEXT")
+    except sqlite3.OperationalError:
+        pass # Kolumna już istnieje
     conn.commit()
     conn.close()
 
 init_db()
 
 class LeadRequest(BaseModel):
+    name: str
     email: str
     url: str
 
 # ZADANIE 2: Logika Scrapowania i AI
 def analyze_website(url: str) -> str:
     try:
-        # Nagłówki zapobiegające blokadom
+        parsed_url = urlparse(url)
+        if parsed_url.scheme not in ('http', 'https'):
+            return "Błąd: Niedozwolony schemat URL. Proszę użyć http:// lub https://"
+            
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0'
         }
-        response = requests.get(url, headers=headers, timeout=10)
+        # SSRF i DoS Protection: Stream download, max 1MB
+        response = requests.get(url, headers=headers, timeout=10, stream=True)
         response.raise_for_status()
         
-        soup = BeautifulSoup(response.text, 'html.parser')
+        content = b""
+        for chunk in response.iter_content(chunk_size=8192):
+            content += chunk
+            if len(content) > 1024 * 1024: # Limit 1MB
+                break
+                
+        soup = BeautifulSoup(content, 'html.parser')
         
         # Usuwamy skrypty i style
         for script_or_style in soup(['script', 'style']):
@@ -137,13 +167,22 @@ def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
 # ZADANIE 3: Endpoint z BackgroundTasks
 @app.post("/api/analyze")
 async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTasks, request: Request):
+    client_ip = request.client.host
+    now = time.time()
+    
+    # Prosty Rate Limiting: max 1 request na minutę z jednego IP
+    if client_ip in RATE_LIMITS:
+        if now - RATE_LIMITS[client_ip] < 60:
+            return {"status": "error", "message": "Zbyt wiele zapytań. Spróbuj ponownie za minutę."}
+    RATE_LIMITS[client_ip] = now
+    
     lead_id = str(uuid.uuid4())
     
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO leads (id, url, email, status) VALUES (?, ?, ?, ?)",
-        (lead_id, request_data.url, request_data.email, 'pending')
+        "INSERT INTO leads (id, url, email, name, status) VALUES (?, ?, ?, ?, ?)",
+        (lead_id, request_data.url, request_data.email, request_data.name, 'pending')
     )
     conn.commit()
     conn.close()
@@ -174,6 +213,9 @@ async def get_approval_panel(lead_id: str):
     elif status == 'rejected':
         return HTMLResponse("<h1>Audyt został odrzucony</h1>")
         
+    # XSS Protection
+    safe_draft = html.escape(ai_draft or '')
+    
     html_content = f"""
     <!DOCTYPE html>
     <html lang="pl">
@@ -228,7 +270,7 @@ async def get_approval_panel(lead_id: str):
     </head>
     <body>
         <h2>AKCEPTACJA AUDYTU</h2>
-        <textarea id="draft-text">{ai_draft or ''}</textarea>
+        <textarea id="draft-text">{safe_draft}</textarea>
         <div class="btn-container">
             <button class="btn-send" onclick="sendAudit()">Wyślij Audyt</button>
             <button class="btn-reject" onclick="rejectAudit()">Odrzuć</button>
@@ -269,15 +311,18 @@ async def get_approval_panel(lead_id: str):
 async def approve_audit(lead_id: str, request: ApproveRequest):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    cursor.execute("SELECT email FROM leads WHERE id = ?", (lead_id,))
+    cursor.execute("SELECT email, name FROM leads WHERE id = ?", (lead_id,))
     row = cursor.fetchone()
     
     if not row:
         conn.close()
         return {"status": "error", "message": "Nie znaleziono leada"}
         
-    client_email = row[0]
+    client_email, client_name = row
     final_draft = request.draft
+    
+    if client_name:
+        final_draft = f"Cześć {client_name},\n\n" + final_draft
     
     # 2. Wysyłka maila do klienta
     smtp_user = os.getenv("SMTP_USER")
@@ -321,17 +366,5 @@ async def custom_404_handler(request, exc):
     if request.url.path.startswith("/api/") or request.url.path.startswith("/approve/"):
         return {"error": "Not found"}
     return FileResponse("nush-agency/dist/index.html")
-
-import os
-os.makedirs("nush-agency/dist", exist_ok=True)
-if not os.path.exists("nush-agency/dist/index.html"):
-    import subprocess
-    try:
-        tree_output = subprocess.check_output(["ls", "-R", "."]).decode("utf-8")
-    except Exception as e:
-        tree_output = str(e)
-    
-    with open("nush-agency/dist/index.html", "w") as f:
-        f.write(f"<h1>Błąd wdrożenia Railway</h1><p>Katalog dist nie został poprawnie zbudowany przez Node.js.</p><pre>{tree_output}</pre>")
 
 app.mount("/", StaticFiles(directory="nush-agency/dist", html=True), name="static")

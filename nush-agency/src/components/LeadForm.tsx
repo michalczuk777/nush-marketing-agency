@@ -14,6 +14,11 @@ export default function LeadForm() {
     const name = (form.elements.namedItem('name') as HTMLInputElement).value;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const url = (form.elements.namedItem('site') as HTMLInputElement).value;
+    
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        setError('Adres strony musi zaczynać się od http:// lub https://');
+        return;
+    }
 
     setLoading(true);
 
@@ -23,7 +28,7 @@ export default function LeadForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: email, url: url }),
+        body: JSON.stringify({ name: name, email: email, url: url }),
       });
 
       const result = await response.json();
