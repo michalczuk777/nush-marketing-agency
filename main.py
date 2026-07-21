@@ -121,7 +121,13 @@ def generate_audit_draft(website_content: str) -> str:
         )
         return response.text
     except Exception as e:
-        return f"Błąd podczas generowania audytu z AI: {str(e)}"
+        try:
+            available_models = [m.name for m in client.models.list()]
+            models_str = ", ".join(available_models)
+        except Exception:
+            models_str = "Nie udało się pobrać listy modeli."
+            
+        return f"Błąd podczas generowania audytu z AI: {str(e)}\n\nTwoje dostępne modele dla tego klucza API to:\n{models_str}"
 
 # Logika tła (Background Task)
 def process_lead_task(lead_id: str, url: str, email: str, base_url: str):
