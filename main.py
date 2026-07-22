@@ -71,6 +71,12 @@ class LeadRequest(BaseModel):
     url: str
     company_fax: str | None = None
 
+class ContactRequest(BaseModel):
+    name: str
+    email: str
+    message: str
+    company_fax: str | None = None
+
 def send_security_alert(reason: str, email: str, url: str, client_ip: str):
     resend.api_key = os.getenv("RESEND_API_KEY")
     if not resend.api_key:
@@ -312,6 +318,55 @@ async def analyze_lead(request_data: LeadRequest, background_tasks: BackgroundTa
     background_tasks.add_task(process_lead_task, lead_id, request_data.url, request_data.email, base_url)
     
     return {"status": "success", "message": "Zgłoszenie przyjęte"}
+
+@app.post("/api/contact")
+async def contact_form(request_data: ContactRequest, request: Request):
+    client_ip = request.headers.get("X-Forwarded-For", request.client.host).split(",")[0].strip()
+    now = time.time()
+    
+    # 1. Zabezpieczenie Front-end (Honeypot)
+    if request_data.company_fax:
+        send_security_alert("Honeypot (Bot - Contact)", request_data.email, "Brak", client_ip)
+        return {"status": "success", "message": "Zgłoszenie przyjęte"}
+        
+    # Walidacja Email
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", request_data.email):
+        send_security_alert("Nieprawidłowy Email (Contact)", request_data.email, "Brak", client_ip)
+        return {"status": "error", "message": "Podano nieprawidłowy adres e-mail."}
+        
+    # Rate Limiting per IP (Max 3 na dobę - współdzielone z analyze)
+    if client_ip not in RATE_LIMITS:
+        RATE_LIMITS[client_ip] = []
+    RATE_LIMITS[client_ip] = [t for t in RATE_LIMITS[client_ip] if now - t < 86400]
+    
+    if len(RATE_LIMITS[client_ip]) >= 3:
+        send_security_alert("Rate Limit IP (>3/24h) Contact", request_data.email, "Brak", client_ip)
+        return {"status": "error", "message": "Przekroczono dzienny limit zapytań z tego adresu IP."}
+    
+    RATE_LIMITS[client_ip].append(now)
+    
+    # Wysłanie wiadomości na skrzynkę z pominięciem AI
+    resend.api_key = os.getenv("RESEND_API_KEY")
+    if resend.api_key:
+        try:
+            from_email = os.getenv("CONTACT_FROM", "onboarding@resend.dev")
+            to_email = os.getenv("CONTACT_TO", from_email)
+            email_body = (
+                f"Nowa wiadomość z formularza kontaktowego (klient bez strony WWW):\n\n"
+                f"Imię: {request_data.name}\n"
+                f"Email: {request_data.email}\n\n"
+                f"Wiadomość:\n{request_data.message}"
+            )
+            resend.Emails.send({
+                "from": from_email,
+                "to": to_email,
+                "subject": "NOWE ZAPYTANIE NUSH (Wiadomość)",
+                "text": email_body
+            })
+        except Exception as e:
+            print(f"Błąd wysyłki wiadomości (Resend): {str(e)}")
+            
+    return {"status": "success", "message": "Wiadomość została pomyślnie wysłana."}
 
 class ApproveRequest(BaseModel):
     draft: str

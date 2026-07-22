@@ -5,6 +5,7 @@ export default function LeadForm() {
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hasWebsite, setHasWebsite] = useState(true);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -12,13 +13,15 @@ export default function LeadForm() {
     const form = event.currentTarget;
     const name = (form.elements.namedItem('name') as HTMLInputElement).value;
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-    const url = (form.elements.namedItem('site') as HTMLInputElement).value;
+    const isContactForm = !hasWebsite;
+    const url = isContactForm ? '' : (form.elements.namedItem('site') as HTMLInputElement).value;
+    const message = isContactForm ? (form.elements.namedItem('message') as HTMLTextAreaElement).value : '';
     const company_fax = (form.elements.namedItem('company_fax') as HTMLInputElement).value;
     
     // Bot check locally as well (optional, but we want the backend to log it)
     // We send it to backend so backend logs the spam attempt.
     
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    if (!isContactForm && !url.startsWith('http://') && !url.startsWith('https://')) {
         setError('Adres strony musi zaczynać się od http:// lub https://');
         return;
     }
@@ -26,12 +29,17 @@ export default function LeadForm() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/analyze', {
+      const endpoint = isContactForm ? '/api/contact' : '/api/analyze';
+      const body = isContactForm 
+        ? JSON.stringify({ name, email, message, company_fax })
+        : JSON.stringify({ name, email, url, company_fax });
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: name, email: email, url: url, company_fax: company_fax }),
+        body,
       });
 
       const result = await response.json();
@@ -101,7 +109,10 @@ export default function LeadForm() {
                 transition={{ delay: 0.4 }}
                 className="text-white/60 max-w-sm mx-auto leading-relaxed"
               >
-                Adres WWW został pomyślnie przyjęty przez system. Nasz zespół już analizuje Twoje zgłoszenie – audyt wkrótce trafi na Twoją skrzynkę.
+                {!hasWebsite 
+                  ? 'Twoja wiadomość została pomyślnie dostarczona. Nasz zespół skontaktuje się z Tobą wkrótce.'
+                  : 'Adres WWW został pomyślnie przyjęty przez system. Nasz zespół już analizuje Twoje zgłoszenie – audyt wkrótce trafi na Twoją skrzynkę.'
+                }
               </motion.p>
             </motion.div>
           ) : (
@@ -116,7 +127,23 @@ export default function LeadForm() {
             >
               <motion.input initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="name-input" name="name" type="text" placeholder="Imię i nazwisko" required aria-label="Imię i nazwisko" className="field" />
               <motion.input initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="email-input" name="email" type="email" placeholder="E-mail" required aria-label="E-mail" className="field" />
-              <motion.input initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="url-input" name="site" type="url" placeholder="Strona WWW" required aria-label="Strona WWW" className="field" />
+              
+              {hasWebsite ? (
+                <motion.input initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="url-input" name="site" type="url" placeholder="Strona WWW" required aria-label="Strona WWW" className="field" />
+              ) : (
+                <motion.textarea initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} id="message-input" name="message" placeholder="W czym możemy Ci pomóc?" required aria-label="Wiadomość" className="field min-h-[120px] resize-y" />
+              )}
+              
+              <div className="flex items-center gap-2 mt-1 mb-2">
+                <input 
+                  type="checkbox" 
+                  id="no-website" 
+                  checked={!hasWebsite} 
+                  onChange={() => setHasWebsite(!hasWebsite)} 
+                  className="w-4 h-4 accent-neon bg-black border-white/20"
+                />
+                <label htmlFor="no-website" className="text-sm text-white/70 cursor-pointer select-none">Nie posiadam jeszcze strony WWW</label>
+              </div>
               <input name="company_fax" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
               
               {error && (
@@ -141,13 +168,16 @@ export default function LeadForm() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    ANALIZOWANIE...
+                    {hasWebsite ? 'ANALIZOWANIE...' : 'WYSYŁANIE...'}
                   </span>
-                ) : 'UMÓW BEZPŁATNĄ DIAGNOZĘ'}
+                ) : (hasWebsite ? 'UMÓW BEZPŁATNĄ DIAGNOZĘ' : 'WYŚLIJ WIADOMOŚĆ')}
               </motion.button>
               
               <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-xs text-gray-400 mt-3 text-center leading-relaxed">
-                Zostaw adres WWW. W ciągu 24h zrobimy bezpłatny, zewnętrzny audyt technologiczny Twojej strony i wrócimy do Ciebie na maila z jednym, kluczowym wnioskiem o Twoim wąskim gardle. Bez korpo-bełkotu.
+                {hasWebsite 
+                  ? 'Zostaw adres WWW. W ciągu 24h zrobimy bezpłatny, zewnętrzny audyt technologiczny Twojej strony i wrócimy do Ciebie na maila z jednym, kluczowym wnioskiem o Twoim wąskim gardle. Bez korpo-bełkotu.'
+                  : 'Opisz nam krótko swój problem lub pomysł, a my wrócimy do Ciebie z konkretną propozycją rozwiązania. Szybko i do rzeczy.'
+                }
               </motion.p>
             </motion.form>
           )}
