@@ -1,5 +1,5 @@
 import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const links = [['Problemy', '/#problemy'], ['Rozwiązania', '/#rozwiazania'], ['Współpraca', '/#wspolpraca'], ['Realizacja', '/#realizacja'], ['Proces', '/#proces'], ['O nas', '/#o-nas']];
