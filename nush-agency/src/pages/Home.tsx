@@ -15,7 +15,7 @@ import SEOLinks from '../components/SEOLinks';
 
 export default function Home() {
   return (
-    <div className="w-full flex flex-col min-h-screen">
+    <div className="w-full flex flex-col min-h-screen pb-24 sm:pb-0">
       <Navbar />
       <main className="flex-1 pt-20">
         <Hero />

@@ -57,7 +57,7 @@ export default function LeadForm() {
   };
 
   return (
-    <section id="kontakt" className="py-24 px-6 md:px-10 bg-black border-b border-white/10">
+    <section id="kontakt" className="py-12 md:py-24 px-6 md:px-10 bg-black border-b border-white/10">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-[.9fr_1.1fr] gap-14">
         <div>
           <p className="font-mono text-xs font-bold uppercase tracking-widest text-neon mb-5">[08] BEZPŁATNA DIAGNOZA</p>

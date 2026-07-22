@@ -23,7 +23,7 @@ export default function SeoLandingPage() {
   const solutionText = pageData.solutionText;
 
   return (
-    <div className="w-full flex flex-col min-h-screen bg-[#050505] text-white">
+    <div className="w-full flex flex-col min-h-screen bg-[#050505] text-white pb-24 sm:pb-0">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={metaDesc} />
