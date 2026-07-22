@@ -532,8 +532,9 @@ async def reject_audit(lead_id: str):
 
 @app.exception_handler(404)
 async def custom_404_handler(request, exc):
-    if request.url.path.startswith("/api/") or request.url.path.startswith("/approve/"):
-        return {"error": "Not found"}
+    if request.url.path.startswith("/api/") or request.url.path.startswith("/approve/") or request.url.path.startswith("/assets/"):
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"error": "Not found"}, status_code=404)
     response = FileResponse("nush-agency/dist/index.html")
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
