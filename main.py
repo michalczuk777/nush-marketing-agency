@@ -534,6 +534,14 @@ async def reject_audit(lead_id: str):
 async def custom_404_handler(request, exc):
     if request.url.path.startswith("/api/") or request.url.path.startswith("/approve/"):
         return {"error": "Not found"}
-    return FileResponse("nush-agency/dist/index.html")
+    response = FileResponse("nush-agency/dist/index.html")
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
+@app.get("/")
+async def serve_index():
+    response = FileResponse("nush-agency/dist/index.html")
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 app.mount("/", StaticFiles(directory="nush-agency/dist", html=True), name="static")
