@@ -17,19 +17,11 @@ export default function CaseStudy() {
     setExpanded(!expanded);
     if (!expanded) {
       setTimeout(() => {
-        const offset = 80;
         const element = contentRef.current;
         if (element) {
-          const bodyRect = document.body.getBoundingClientRect().top;
-          const elementRect = element.getBoundingClientRect().top;
-          const elementPosition = elementRect - bodyRect;
-          const offsetPosition = elementPosition - offset;
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 100);
+      }, 150);
     }
   };
   return <section id="realizacja" className="relative overflow-hidden border-b border-white/10 bg-[#0a0a0a] px-6 py-12 md:py-24 md:px-10">
@@ -44,7 +36,7 @@ export default function CaseStudy() {
         </motion.div>
         <div className="grid min-w-0 gap-3 sm:grid-cols-2">{metrics.map((metric, index) => <motion.div key={metric.label} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .1 }} className="min-w-0 border border-white/10 bg-black/40 p-5 hover:border-neon/60 transition-colors"><div className="mb-8 flex justify-between gap-3"><span className="font-mono text-4xl font-bold md:text-5xl">{metric.value}</span><span className="font-mono text-[10px] text-neon/60">0{index + 1}</span></div><div className="mb-3 text-sm uppercase leading-snug text-white/60">{metric.label}</div><div className="h-px bg-white/10"><motion.div initial={{ width: 0 }} whileInView={{ width: metric.width }} viewport={{ once: true }} transition={{ duration: 1 }} className="h-px bg-neon shadow-[0_0_12px_rgba(0,255,0,.8)]" /></div></motion.div>)}</div>
       </div>
-      {expanded && <motion.div ref={contentRef} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="mt-12 grid gap-4 border-t border-neon/30 pt-8 md:grid-cols-3"><div><p className="font-mono text-xs text-neon">PROBLEM</p><p className="mt-3 text-white/60">Duży katalog bez spójnej architektury i powtarzalnego mechanizmu publikacji.</p></div><div><p className="font-mono text-xs text-neon">WDROŻENIE</p><p className="mt-3 text-white/60">Uporządkowanie struktury, szablonów, danych i technicznego SEO.</p></div><div><p className="font-mono text-xs text-neon">REZULTAT</p><p className="mt-3 text-white/60">Więcej widocznych podstron i stabilny wzrost organicznego kanału.</p></div></motion.div>}
+      {expanded && <motion.div ref={contentRef} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="mt-12 grid gap-4 border-t border-neon/30 pt-8 md:grid-cols-3 scroll-mt-24"><div><p className="font-mono text-xs text-neon">PROBLEM</p><p className="mt-3 text-white/60">Duży katalog bez spójnej architektury i powtarzalnego mechanizmu publikacji.</p></div><div><p className="font-mono text-xs text-neon">WDROŻENIE</p><p className="mt-3 text-white/60">Uporządkowanie struktury, szablonów, danych i technicznego SEO.</p></div><div><p className="font-mono text-xs text-neon">REZULTAT</p><p className="mt-3 text-white/60">Więcej widocznych podstron i stabilny wzrost organicznego kanału.</p></div></motion.div>}
       <p className="mt-10 font-mono text-[10px] uppercase tracking-wider text-white/35">Dane Google Search Console. Porównanie pierwszych i ostatnich 30 dni okresu 12.04-11.07.2026.</p>
     </div>
   </section>;

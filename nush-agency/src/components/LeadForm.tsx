@@ -120,8 +120,8 @@ export default function LeadForm() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ staggerChildren: 0.1 }}
-              id="lead-form" 
-              className="flex flex-col gap-4" 
+              id="formularz" 
+              className="flex flex-col gap-4 scroll-mt-24" 
               onSubmit={submit} 
               noValidate
             >

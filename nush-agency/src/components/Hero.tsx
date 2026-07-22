@@ -10,7 +10,7 @@ export default function Hero() {
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .2 }} className="text-lg md:text-2xl text-white/70 max-w-2xl mb-8 leading-relaxed">Jesteśmy technologicznym wsparciem dla Twojego biznesu. Od tworzenia i optymalizacji szybkich stron WWW, przez konfigurację sklepów e-commerce, aż po automatyzację obsługi zamówień. Ty zajmujesz się sprzedażą, my bierzemy na siebie całą technologię.</motion.p>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, delay: .3 }} className="flex flex-col sm:flex-row gap-4">
-          <a href="#kontakt" className="inline-flex justify-center items-center border-2 border-neon text-neon px-6 py-4 font-black uppercase tracking-tight hover:bg-neon hover:text-black transition-all">Umów bezpłatną diagnozę</a>
+          <a href="#formularz" className="inline-flex justify-center items-center border-2 border-neon text-neon px-6 py-4 font-black uppercase tracking-tight hover:bg-neon hover:text-black transition-all">Umów bezpłatną diagnozę</a>
           <a href="#realizacja" className="inline-flex justify-center items-center border border-white/20 px-6 py-4 font-black uppercase tracking-tight text-white/80 hover:border-neon hover:text-neon transition-all">Zobacz realizację</a>
         </motion.div>
       </div>
